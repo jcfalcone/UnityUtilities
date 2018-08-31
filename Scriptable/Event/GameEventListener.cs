@@ -23,7 +23,7 @@ namespace Falcone.Events
 			this.gameEvent.UnRegister(this);
 		}
 
-		public void Response()
+		public virtual void Response()
 		{
 			this.response.Invoke();
 		}
