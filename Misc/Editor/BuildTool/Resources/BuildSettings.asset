@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53a0e486d7e49c14da10269ea7de6315, type: 3}
+  m_Name: BuildSettings
+  m_EditorClassIdentifier: 
+  controlVersion: 1
+  sequence: 3
+  Version: '{Date.Year}.{Date.Month}.{Date.Day}.{Sequence}'
+  Path: '{Root_Folder}/Build/{Short_Target}/{Project_Name}_{Date.Path.Date}_{Sequence}/'
+  File: '{Project_Name}{Extension}'
+  preBuildActions: []
+  postBuildActions: []
+  Steps:
+  - Name: Jenkins Android
+    Labels: Jenkins Android
+    ignoreAlerts: 1
+    autoSequence: 1
+    zipBuild: 1
+    overwriteStep: {fileID: 0}
+    Target: 13
+    Option: 1
+    overwritePath: 0
+    path: 
+    overwriteScenes: 0
+    scenes:
+    - {fileID: 102900000, guid: 5bf795eda64a6431fb19ea152d87fac5, type: 3}
+    preBuildActions: []
+    postBuildActions: []
+  - Name: Jenkins IOS
+    Labels: Jenkins iOS
+    ignoreAlerts: 1
+    autoSequence: 1
+    zipBuild: 1
+    overwriteStep: {fileID: 0}
+    Target: 9
+    Option: 1
+    overwritePath: 0
+    path: 
+    overwriteScenes: 0
+    scenes:
+    - {fileID: 102900000, guid: 5bf795eda64a6431fb19ea152d87fac5, type: 3}
+    preBuildActions: []
+    postBuildActions: []
+  - Name: Android
+    Labels: All Android
+    ignoreAlerts: 1
+    autoSequence: 1
+    zipBuild: 0
+    overwriteStep: {fileID: 0}
+    Target: 13
+    Option: 37
+    overwritePath: 0
+    path: 
+    overwriteScenes: 0
+    scenes:
+    - {fileID: 102900000, guid: 5bf795eda64a6431fb19ea152d87fac5, type: 3}
+    preBuildActions: []
+    postBuildActions: []
+  - Name: IOS
+    Labels: All iOS
+    ignoreAlerts: 1
+    autoSequence: 1
+    zipBuild: 0
+    overwriteStep: {fileID: 0}
+    Target: 9
+    Option: 37
+    overwritePath: 0
+    path: 
+    overwriteScenes: 0
+    scenes:
+    - {fileID: 102900000, guid: 5bf795eda64a6431fb19ea152d87fac5, type: 3}
+    preBuildActions: []
+    postBuildActions: []
