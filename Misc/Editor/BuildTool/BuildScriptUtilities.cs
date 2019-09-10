@@ -118,6 +118,43 @@ namespace Falcone.BuildTool
             return "Unknow";
         }
 
+        public static BuildTargetGroup GetTargetGroup(BuildTarget _target)
+        {
+            switch (_target)
+            {
+                case BuildTarget.StandaloneOSX:
+                    return BuildTargetGroup.Standalone;
+                case BuildTarget.StandaloneWindows:
+                    return BuildTargetGroup.Standalone;
+                case BuildTarget.iOS:
+                    return BuildTargetGroup.iOS;
+                case BuildTarget.Android:
+                    return BuildTargetGroup.Android;
+                case BuildTarget.StandaloneWindows64:
+                    return BuildTargetGroup.Standalone;
+                case BuildTarget.WebGL:
+                    return BuildTargetGroup.WebGL;
+                case BuildTarget.WSAPlayer:
+                    return BuildTargetGroup.WSA;
+                case BuildTarget.StandaloneLinux64:
+                    return BuildTargetGroup.Standalone;
+                case BuildTarget.PS4:
+                    return BuildTargetGroup.PS4;
+                case BuildTarget.XboxOne:
+                    return BuildTargetGroup.XboxOne;
+                case BuildTarget.tvOS:
+                    return BuildTargetGroup.tvOS;
+                case BuildTarget.Switch:
+                    return BuildTargetGroup.Switch;
+                case BuildTarget.Lumin:
+                    return BuildTargetGroup.Lumin;
+                case BuildTarget.Stadia:
+                    return BuildTargetGroup.Stadia;
+            }
+
+            return BuildTargetGroup.Unknown;
+        }
+
         public static string GetTargetExtension(BuildTarget _target)
         {
             switch (_target)

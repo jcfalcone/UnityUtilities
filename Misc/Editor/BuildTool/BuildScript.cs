@@ -459,18 +459,21 @@ namespace Falcone.BuildTool
             string buildPath = ParseString(_settings.Path);
             string filePath = ParseString(_settings.File);
 
+            //Replace step if necessary
             if (_step.overwritePath)
             {
                 buildPath = ParseString(_step.path);
             }
 
-            if(_step.overwriteStep != null)
+            //Check if a custom build procress is set
+            if (_step.overwriteStep != null)
             {
                 _step.overwriteStep.Exec(_settings, _step, _extra, buildPath, filePath);
                 return;
             }
 
-            if(_extra != null)
+            //Filter by tag and platform
+            if (_extra != null)
             {
                 if(_extra.targets.Count > 0)
                 {
@@ -503,10 +506,34 @@ namespace Falcone.BuildTool
                 }
             }
 
-            //Get
+            //Check if platform is different
+            if (!_extra.noAlerts)
+            {
+                if(_step.Target != EditorUserBuildSettings.activeBuildTarget)
+                {
+                    if (EditorUtility.DisplayDialog("Switch Targets?", "Do you want to switch platforms? It can take several minutes", "Cancel", "Switch"))
+                    {
+                        BuildScriptUtilities.Log("Stopping Step "+ _step.Name);
+                        return;
+                    }
+                }
+            }
+
+            //Switching platforms
+            SetStep("Building Step: " + _step.Name + " - Switching Platform to "+ _step.Target);
+
+            bool switchResult = EditorUserBuildSettings.SwitchActiveBuildTarget(BuildScriptUtilities.GetTargetGroup(_step.Target), _step.Target);
+
+            if (!switchResult)
+            {
+                BuildScriptUtilities.Log("Unable to change Build Target to: " + _step.Target.ToString());
+                return;
+            }
+
+            //Get Scenes from overwrite or the editor
             string[] scenes;
 
-            SetStep("Building Step: " + _step.Target+" - Getting Scenes");
+            SetStep("Building Step: " + _step.Name +" - Getting Scenes");
 
             if (_step.overwriteScenes)
             {
@@ -517,15 +544,13 @@ namespace Falcone.BuildTool
                 scenes = BuildScriptUtilities.GetSceneLevels();
             }
 
-            currParts++;
-
-            SetStep("Building Step: " + _step.Target + " - Creating Directory");
+            SetStep("Building Step: " + _step.Name + " - Creating Directory");
             Directory.CreateDirectory(buildPath);
 
             //Execute Pre Actions
             for (int count = 0; count < _step.preBuildActions.Length; count++)
             {
-                SetStep("Building Step: " + _step.Target + " - Executing pre action "+ _step.preBuildActions[count].name);
+                SetStep("Building Step: " + _step.Name + " - Executing pre action "+ _step.preBuildActions[count].name);
 
                 if (!_step.preBuildActions[count].Exec(_settings, _step, _extra, buildPath, filePath))
                 {
@@ -537,7 +562,7 @@ namespace Falcone.BuildTool
                 }
             }
 
-            SetStep("Building Step: " + _step.Target + " - Building Project");
+            SetStep("Building Step: " + _step.Name + " - Building Project");
             //Create the Build and Zip
 
             BuildOptions options = _step.Option;
@@ -548,11 +573,18 @@ namespace Falcone.BuildTool
                 options |= BuildOptions.Development;
             }
 
-            BuildPipeline.BuildPlayer(scenes, buildPath + "/" + filePath, _step.Target, options);
+            UnityEditor.Build.Reporting.BuildReport report = BuildPipeline.BuildPlayer(scenes, buildPath + "/" + filePath, _step.Target, options);
+            UnityEditor.Build.Reporting.BuildSummary summary = report.summary;
 
-            if(_step.zipBuild)
+            if(summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
             {
-                SetStep("Building Step: " + _step.Target + " - Zipping Project");
+                BuildScriptUtilities.LogError("Building Step: Build Failed - Target: "+ _step.Name + " Time:" + summary.totalTime + " Total Errors: " + summary.totalErrors);
+                return;
+            }
+
+            if (_step.zipBuild)
+            {
+                SetStep("Building Step: " + _step.Name + " - Zipping Project");
 
                 string parentFolder = System.IO.Directory.GetParent(buildPath).ToString();
                 ZipBuild(buildPath, parentFolder+".zip", "");
@@ -561,7 +593,7 @@ namespace Falcone.BuildTool
             //Execute Post Actions
             for (int count = 0; count < _step.postBuildActions.Length; count++)
             {
-                SetStep("Building Step: " + _step.Target + " - Executing post action " + _step.postBuildActions[count].GetName());
+                SetStep("Building Step: " + _step.Name + " - Executing post action " + _step.postBuildActions[count].GetName());
 
                 if (!_step.postBuildActions[count].Exec(_settings, _step, _extra, buildPath, filePath))
                 {
