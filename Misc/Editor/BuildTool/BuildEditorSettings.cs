@@ -14,11 +14,10 @@ namespace Falcone.BuildTool
         {
             public string Name;
             public string Labels;
-            public bool ignoreAlerts;
 
             [Space]
-            public bool autoSequence;
             public bool zipBuild;
+            public bool mainBuild;
 
             [Space]
             public TemplateBuildAction overwriteStep;
@@ -40,25 +39,22 @@ namespace Falcone.BuildTool
             public bool overwriteScenes;
 
             [ConditionalHideAttribute("overwritePath")]
-            public Object[] scenes;
+            public List<Object> scenes;
 
             [Space]
             [Header("Actions")]
-            public TemplateBuildAction[] preBuildActions;
-            public TemplateBuildAction[] postBuildActions;
+            public List<TemplateBuildAction> preBuildActions;
+            public List<TemplateBuildAction> postBuildActions;
 
             public Step()
             {
                 this.Labels = "All";
 
-                this.ignoreAlerts = false;
-                this.autoSequence = true;
-
                 //this.Target = EditorUserBuildSettings.activeBuildTarget;
                 this.Option = GetBuildOptions().options;
 
                 this.overwriteScenes = false;
-                this.scenes = new Object[0];
+                this.scenes = new List<Object>();
             }
 
             public static BuildPlayerOptions GetBuildOptions()
@@ -93,19 +89,19 @@ namespace Falcone.BuildTool
 
         [Space]
         [Header("Actions")]
-        public TemplateBuildAction[] preBuildActions;
-        public TemplateBuildAction[] postBuildActions;
+        public List<TemplateBuildAction> preBuildActions;
+        public List<TemplateBuildAction> postBuildActions;
 
         [Space]
         [Header("Build")]
 
-        public Step[] Steps;
+        public List<Step> Steps;
 
         public void UpdateStepTags()
         {
             string[] targets = BuildScriptUtilities.GetAllShortTargetName();
 
-            for(int count = 0; count < this.Steps.Length; count++)
+            for(int count = 0; count < this.Steps.Count; count++)
             {
                 for (int countT = 0; countT < targets.Length; countT++)
                 {

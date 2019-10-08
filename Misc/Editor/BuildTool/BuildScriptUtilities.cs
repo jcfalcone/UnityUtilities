@@ -47,9 +47,9 @@ namespace Falcone.BuildTool
 
         public static string[] GetSceneList(BuildEditorSettings.Step _step)
         {
-            string[] scenes = new string[_step.scenes.Length];
+            string[] scenes = new string[_step.scenes.Count];
 
-            for (int count = 0; count < _step.scenes.Length; count++)
+            for (int count = 0; count < _step.scenes.Count; count++)
             {
                 scenes[count] = AssetDatabase.GetAssetPath(_step.scenes[count]) + "/" + _step.scenes[count].name;
             }

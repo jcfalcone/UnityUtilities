@@ -26,6 +26,11 @@ namespace Falcone.BuildTool
 
                 return extra;
             }
+
+            public static ExtraSettings Default()
+            {
+                return new ExtraSettings();
+            }
         }
 
         public delegate void OnStep();
@@ -187,7 +192,7 @@ namespace Falcone.BuildTool
             BuildAll();
         }
 
-        public static void BuildAll(BuildEditorSettings _setting = null, ExtraSettings _extra = null)
+        public static void BuildAll(BuildEditorSettings _setting = null, ExtraSettings _extra = null, int _index = -1)
         {
             if (_setting == null)
             {
@@ -202,7 +207,7 @@ namespace Falcone.BuildTool
                 _setting = settings[0];
             }
 
-            BuildSettings(_setting, _extra);
+            BuildSettings(_setting, _extra, _index);
         }
         #endregion
 
@@ -317,6 +322,16 @@ namespace Falcone.BuildTool
             dictionary["{" + _key + "}"] = _value;
         }
 
+        public static void CreateSampleDictionary()
+        {
+            CreateDictionary();
+
+            AddToDictionary("Short_Target", BuildScriptUtilities.GetShortTargetName(BuildTarget.StandaloneWindows));
+            AddToDictionary("Long_Target", BuildTarget.StandaloneWindows.ToString());
+            AddToDictionary("Extension", BuildScriptUtilities.GetTargetExtension(BuildTarget.StandaloneWindows));
+            AddToDictionary("Sequence", "99");
+        }
+
         public static void ZipBuild(string _build, string _path, string _file)
         {
             System.IO.Compression.ZipFile.CreateFromDirectory(_build, _path + _file);
@@ -326,12 +341,12 @@ namespace Falcone.BuildTool
         {
             currParts = 0;
 
-            totalParts = _settings.Steps.Length;
+            totalParts = _settings.Steps.Count;
 
-            for (int count = 0; count < _settings.Steps.Length; count++)
+            for (int count = 0; count < _settings.Steps.Count; count++)
             {
-                totalParts += _settings.Steps[count].preBuildActions.Length;
-                totalParts += _settings.Steps[count].postBuildActions.Length;
+                totalParts += _settings.Steps[count].preBuildActions.Count;
+                totalParts += _settings.Steps[count].postBuildActions.Count;
 
                 if (_settings.Steps[count].zipBuild)
                 {
@@ -403,14 +418,17 @@ namespace Falcone.BuildTool
             return true;
         }
 
-        static void BuildSettings(BuildEditorSettings _settings, ExtraSettings _extra = null)
+        static void BuildSettings(BuildEditorSettings _settings, ExtraSettings _extra = null, int _index = -1)
         {
             isBuilding = true;
+
+            BuildTarget projectTarget           = EditorUserBuildSettings.activeBuildTarget;
+            BuildTargetGroup projectTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
 
             PreBuild(_settings);
 
             //Execute Pre Actions
-            for (int count = 0; count < _settings.preBuildActions.Length; count++)
+            for (int count = 0; count < _settings.preBuildActions.Count; count++)
             {
                 SetStep("Building Step: Executing Generic post action " + _settings.preBuildActions[count].GetName());
 
@@ -424,13 +442,26 @@ namespace Falcone.BuildTool
                 }
             }
 
-            for (int count = 0; count < _settings.Steps.Length; count++)
+            if (_index == -1)
             {
-                BuildStep(_settings, _settings.Steps[count], _extra);
+                for (int count = 0; count < _settings.Steps.Count; count++)
+                {
+                    BuildStep(_settings, _settings.Steps[count], _extra);
+                }
+            }
+            else
+            {
+                if(_index < 0 || _index >= _settings.Steps.Count)
+                {
+                    BuildScriptUtilities.LogError("ERROR: Invalid Build Index");
+                    return;
+                }
+
+                BuildStep(_settings, _settings.Steps[_index], _extra);
             }
 
             //Execute Post Actions
-            for (int count = 0; count < _settings.postBuildActions.Length; count++)
+            for (int count = 0; count < _settings.postBuildActions.Count; count++)
             {
                 SetStep("Building Step: Executing Generic post action " + _settings.postBuildActions[count].GetName());
 
@@ -442,6 +473,15 @@ namespace Falcone.BuildTool
                                                       " returned a error - " + _settings.postBuildActions[count].GetError());
                     }
                 }
+            }
+
+            //Return original Platform
+            bool switchResult = EditorUserBuildSettings.SwitchActiveBuildTarget(projectTargetGroup, projectTarget);
+
+            if (!switchResult)
+            {
+                BuildScriptUtilities.Log("Unable to change Build Target to: " + projectTarget.ToString());
+                return;
             }
 
             isBuilding = false;
@@ -465,7 +505,7 @@ namespace Falcone.BuildTool
                 buildPath = ParseString(_step.path);
             }
 
-            //Check if a custom build procress is set
+            //Check if a custom build step is set
             if (_step.overwriteStep != null)
             {
                 _step.overwriteStep.Exec(_settings, _step, _extra, buildPath, filePath);
@@ -548,7 +588,7 @@ namespace Falcone.BuildTool
             Directory.CreateDirectory(buildPath);
 
             //Execute Pre Actions
-            for (int count = 0; count < _step.preBuildActions.Length; count++)
+            for (int count = 0; count < _step.preBuildActions.Count; count++)
             {
                 SetStep("Building Step: " + _step.Name + " - Executing pre action "+ _step.preBuildActions[count].name);
 
@@ -591,7 +631,7 @@ namespace Falcone.BuildTool
             }
 
             //Execute Post Actions
-            for (int count = 0; count < _step.postBuildActions.Length; count++)
+            for (int count = 0; count < _step.postBuildActions.Count; count++)
             {
                 SetStep("Building Step: " + _step.Name + " - Executing post action " + _step.postBuildActions[count].GetName());
 

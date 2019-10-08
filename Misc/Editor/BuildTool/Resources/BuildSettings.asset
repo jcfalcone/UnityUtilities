@@ -22,9 +22,8 @@ MonoBehaviour:
   Steps:
   - Name: Jenkins Android
     Labels: Jenkins Android
-    ignoreAlerts: 1
-    autoSequence: 1
     zipBuild: 1
+    mainBuild: 0
     overwriteStep: {fileID: 0}
     Target: 13
     Option: 1
@@ -37,24 +36,21 @@ MonoBehaviour:
     postBuildActions: []
   - Name: Jenkins IOS
     Labels: Jenkins iOS
-    ignoreAlerts: 1
-    autoSequence: 1
     zipBuild: 1
+    mainBuild: 0
     overwriteStep: {fileID: 0}
     Target: 9
     Option: 1
     overwritePath: 0
     path: 
     overwriteScenes: 0
-    scenes:
-    - {fileID: 102900000, guid: 5bf795eda64a6431fb19ea152d87fac5, type: 3}
+    scenes: []
     preBuildActions: []
     postBuildActions: []
   - Name: Android
     Labels: All Android
-    ignoreAlerts: 1
-    autoSequence: 1
     zipBuild: 0
+    mainBuild: 0
     overwriteStep: {fileID: 0}
     Target: 13
     Option: 37
@@ -67,9 +63,22 @@ MonoBehaviour:
     postBuildActions: []
   - Name: IOS
     Labels: All iOS
-    ignoreAlerts: 1
-    autoSequence: 1
     zipBuild: 0
+    mainBuild: 0
+    overwriteStep: {fileID: 0}
+    Target: 9
+    Option: 37
+    overwritePath: 0
+    path: 
+    overwriteScenes: 0
+    scenes:
+    - {fileID: 102900000, guid: 5bf795eda64a6431fb19ea152d87fac5, type: 3}
+    preBuildActions: []
+    postBuildActions: []
+  - Name: 'JULIO '
+    Labels: All iOS
+    zipBuild: 0
+    mainBuild: 0
     overwriteStep: {fileID: 0}
     Target: 9
     Option: 37

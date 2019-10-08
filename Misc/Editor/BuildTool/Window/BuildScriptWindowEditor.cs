@@ -8,21 +8,42 @@ namespace Falcone.BuildTool
     public class BuildScriptWindowEditor : EditorWindow
     {
 
-        static BuildEditorSettings currSettings;
-        static BuildScriptWindowSettings settings;
+        static BuildEditorSettings staticSettings;
+        public BuildEditorSettings currSettings;
+        public static BuildScriptWindowSettings settings;
 
         static BuildScriptWindowState stateCtrl;
-        static BuildScriptWindowState.States currState;
-        static BuildScriptWindowState.States nextState;
+        public BuildScriptWindowState.States currState;
+        public BuildScriptWindowState.States m_nextState;
+
+        public BuildScriptWindowState.States nextState
+        {
+            get
+            {
+                return m_nextState;
+            }
+            set
+            {
+                fadeStartTime = Time.realtimeSinceStartup;
+
+                m_nextState = value;
+            }
+        }
 
         static bool skipWelcome = false;
+
+        public static BuildScriptWindowEditor editor;
+
+        float currFadeVal = 1;
+        float fadeStartTime = 0;
+        float fadeTime = 0.5f;
 
         [MenuItem("Build/Editor")]
         static void ShowWindow()
         {
-            BuildScriptWindowEditor editor = EditorWindow.GetWindow<BuildScriptWindowEditor>();
+            editor = EditorWindow.GetWindow<BuildScriptWindowEditor>();
 
-            editor.minSize = new Vector2(800, 600);
+            editor.minSize = new Vector2(250, 150);
             editor.titleContent.text = "Build Steps";
             editor.titleContent.image = GetSettings().icon;
 
@@ -50,8 +71,8 @@ namespace Falcone.BuildTool
         {
             if (Selection.activeObject is BuildEditorSettings)
             {
-                currSettings = Selection.activeObject as BuildEditorSettings;
-                //ShowEditor();
+                staticSettings = Selection.activeObject as BuildEditorSettings;
+                ShowWindow();
 
                 return true;
             }
@@ -61,25 +82,67 @@ namespace Falcone.BuildTool
 
         void OnGUI()
         {
-            CheckState();
-            stateCtrl.Tick(currState);
+            if(staticSettings != null)
+            {
+                currSettings = staticSettings;
+            }
+
+            CheckState(currSettings, this);
+
+            if(Selection.objects.Length > 0 && Selection.objects[0] is BuildEditorSettings)
+            {
+                BuildEditorSettings selectSetting = Selection.objects[0] as BuildEditorSettings;
+
+                if(selectSetting != currSettings)
+                {
+                    currSettings = selectSetting;
+                    staticSettings = selectSetting;
+                }
+            }
+
+            EditorGUILayout.BeginFadeGroup(this.currFadeVal);
+
+            using (var check = new EditorGUI.ChangeCheckScope())
+            {
+                stateCtrl.Tick(currState, currSettings, this, GetSettings());
+
+                if (check.changed)
+                {
+                    Undo.RecordObject(currSettings, "Build Step Editor Undo");
+                }
+            }
+
+            EditorGUILayout.EndFadeGroup();
         }
         #endregion
 
         #region State
-        static void CheckState()
+        void CheckState(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
         {
             if(currState != nextState)
             {
-                stateCtrl.InitState(nextState);
-                currState = nextState;
+                this.currFadeVal = Mathf.MoveTowards(this.currFadeVal, 0f, (Time.realtimeSinceStartup - this.fadeStartTime) / this.fadeTime);
+
+                if (currFadeVal <= 0)
+                {
+                    stateCtrl.InitState(nextState, _build, _editor);
+                    currState = nextState;
+                    this.fadeStartTime = Time.realtimeSinceStartup;
+                }
+            }
+            else
+            {
+                if(this.currFadeVal < 1f)
+                {
+                    this.currFadeVal = Mathf.MoveTowards(this.currFadeVal, 1f, (Time.realtimeSinceStartup - this.fadeStartTime) / this.fadeTime);
+                }
             }
         }
 
         #endregion
 
         #region Support
-        static void Init()
+        void Init()
         {
             if(!EditorPrefs.HasKey("SkipWelcomeScreen"))
             {
