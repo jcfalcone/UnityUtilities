@@ -15,8 +15,8 @@ MonoBehaviour:
   controlVersion: 1
   sequence: 3
   Version: '{Date.Year}.{Date.Month}.{Date.Day}.{Sequence}'
-  Path: '{Root_Folder}/Build/{Short_Target}/{Project_Name}_{Date.Path.Date}_{Sequence}/'
-  File: '{Project_Name}{Extension}'
+  Path: 
+  File: '{Project_Name}{Extension}{Project_Name}{Sequence}'
   preBuildActions: []
   postBuildActions: []
   Steps:
@@ -50,7 +50,7 @@ MonoBehaviour:
   - Name: Android
     Labels: All Android
     zipBuild: 0
-    mainBuild: 0
+    mainBuild: 1
     overwriteStep: {fileID: 0}
     Target: 13
     Option: 37
@@ -64,7 +64,7 @@ MonoBehaviour:
   - Name: IOS
     Labels: All iOS
     zipBuild: 0
-    mainBuild: 0
+    mainBuild: 1
     overwriteStep: {fileID: 0}
     Target: 9
     Option: 37

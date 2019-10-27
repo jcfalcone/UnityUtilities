@@ -21,12 +21,22 @@ namespace Falcone.BuildTool
             GUILayout.EndHorizontal();
         }
 
-        public static void Space(int _spaces = 1)
+        public static void Space(int _spaces = 1, GUILayoutOption _style = null)
         {
-            do
+            if (_style == null)
             {
-                GUILayout.Label("");
-            } while (--_spaces > 0);
+                do
+                {
+                    GUILayout.Label("");
+                } while (--_spaces > 0);
+            }
+            else
+            {
+                do
+                {
+                    GUILayout.Label("", _style);
+                } while (--_spaces > 0);
+            }
         }
 
         public static void SubTitle(string _title, int _size = 70, GUIStyle _style = null)

@@ -16,6 +16,7 @@ namespace Falcone.BuildTool
             public string Folder;
             public BuildEditorSettings BuildSetting;
             public TemplateBuildAction Script;
+            public BuildEditorSettings.Step Step;
             public List<TemplateBuildAction> List;
 
             public MenuOption(string _Folder, BuildEditorSettings _build, TemplateBuildAction _Script, List<TemplateBuildAction> _list)
@@ -25,15 +26,25 @@ namespace Falcone.BuildTool
                 Script = _Script;
                 List = _list;
             }
+
+            public MenuOption(string _Folder, BuildEditorSettings _build, TemplateBuildAction _Script, BuildEditorSettings.Step _step)
+            {
+                Folder = _Folder;
+                BuildSetting = _build;
+                Script = _Script;
+                Step = _step;
+            }
         }
 
         public enum States
         {
             Welcome,
 
+            NewPath,
             NewPlatform,
-            NewSettings,
             NewActions,
+            NewSettings,
+            NewEnd,
 
             BuildStep,
 
@@ -44,6 +55,8 @@ namespace Falcone.BuildTool
 
         ReorderableList actionsPreBuild;
         ReorderableList actionsPostBuild;
+
+        int newCurrStep = 0;
 
         List<Dictionary<string, ReorderableList>> StepsLists;
 
@@ -62,11 +75,18 @@ namespace Falcone.BuildTool
                 case States.ChangeSettings:
                     this.InitChangeSettings(_build, _editor);
                     break;
+                case States.NewPath:
+                    this.InitNewPath(_build, _editor);
+                    break;
+                case States.NewPlatform:
+                    this.InitNewPlatform(_build, _editor);
+                    break;
             }
         }
 
         public void Tick(States _state, BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
         {
+            Debug.Log("Tick " + _state);
             switch (_state)
             {
                 case States.Welcome:
@@ -77,6 +97,18 @@ namespace Falcone.BuildTool
                     break;
                 case States.ChangeSettings:
                     this.ChangeSettings(_build, _editor, _settings);
+                    break;
+                case States.NewPath:
+                    this.NewPath(_build, _editor, _settings);
+                    break;
+                case States.NewPlatform:
+                    this.NewPlatform(_build, _editor, _settings);
+                    break;
+                case States.NewActions:
+                    this.NewPlatform(_build, _editor, _settings);
+                    break;
+                case States.NewSettings:
+                    this.NewPlatform(_build, _editor, _settings);
                     break;
             }
         }
@@ -91,9 +123,11 @@ namespace Falcone.BuildTool
         {
             EditorStyles.label.wordWrap = true;
 
-            _settings.style.WelcomeGroup = new GUIStyle(EditorStyles.helpBox);
+            /*_settings.style.WelcomeGroup = new GUIStyle(EditorStyles.helpBox);
             _settings.style.WelcomeBuildButton = new GUIStyle(GUI.skin.button);
             _settings.style.WelcomeButtons = new GUIStyle(GUI.skin.button);
+            _settings.style.StepGroup = EditorStyles.helpBox;
+            EditorUtility.SetDirty(_settings);*/
 
             GUILayout.BeginVertical();
 
@@ -148,7 +182,12 @@ namespace Falcone.BuildTool
             minWidth -= _settings.style.WelcomeGroup.margin.left;
             minWidth -= _settings.style.WelcomeGroup.margin.right;
 
-            GUILayoutOption[] options = { GUILayout.MinHeight(100), GUILayout.MinWidth(minWidth) };
+            GUILayoutOption[] options = { GUILayout.MinHeight(Mathf.Clamp(200f * Mathf.Clamp01(1f - (_editor.position.width / 900f)), 90f, 200f)), GUILayout.MinWidth(minWidth) };
+
+            if (_editor.position.width < 300)
+            {
+                options[0] = GUILayout.MinHeight(100);
+            }
 
             GUILayout.BeginVertical(_settings.style.WelcomeGroup, options);
 
@@ -161,7 +200,7 @@ namespace Falcone.BuildTool
 
             if (GUILayout.Button("Create a new File", _settings.style.WelcomeButtons))
             {
-
+                _editor.nextState = States.NewPath;
             }
 
             GUILayout.EndVertical();
@@ -271,7 +310,21 @@ namespace Falcone.BuildTool
 
             GUILayout.BeginHorizontal();
             _build.Version = EditorGUILayout.TextField("Version Template", _build.Version);
-            GUILayout.Button("Add...", GUILayout.MaxWidth(50));
+
+            if(GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
+            {
+                GUI.FocusControl(null);
+
+                GenericMenu menu = this.GetTagsMenu((_object) =>
+                                                    {
+                                                        string tag = _object as string;
+
+                                                        _build.Version += "{" + tag + "}";
+                                                    });
+
+                menu.ShowAsContext();
+            }
+
             GUILayout.EndHorizontal();
 
 
@@ -289,15 +342,47 @@ namespace Falcone.BuildTool
 
 
             GUILayout.BeginHorizontal();
-            EditorGUILayout.TextField("Destine Path", _build.Path);
-            GUILayout.Button("...", GUILayout.MaxWidth(50));
-            GUILayout.Button("Add...", GUILayout.MaxWidth(50));
+            _build.Path = EditorGUILayout.TextField("Destine Path", _build.Path);
+
+            if(GUILayout.Button("...", GUILayout.MaxWidth(50)))
+            {
+                _build.Path = EditorUtility.SaveFolderPanel("Build End Path", _build.Path, "Build");
+            }
+
+            if (GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
+            {
+                GUI.FocusControl(null);
+
+                GenericMenu menu = this.GetTagsMenu((_object) =>
+                                                    {
+                                                        string tag = _object as string;
+
+                                                        _build.Path += "{" + tag + "}";
+                                                    });
+
+                menu.ShowAsContext();
+            }
+
             GUILayout.EndHorizontal();
 
 
             GUILayout.BeginHorizontal();
-            EditorGUILayout.TextField("File Name", _build.File);
-            GUILayout.Button("Add...", GUILayout.MaxWidth(50));
+            _build.File = EditorGUILayout.TextField("File Name", _build.File);
+
+            if (GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
+            {
+                GUI.FocusControl(null);
+
+                GenericMenu menu = this.GetTagsMenu((_object) =>
+                                                    {
+                                                        string tag = _object as string;
+
+                                                        _build.File += "{" + tag + "}";
+                                                    });
+
+                menu.ShowAsContext();
+            }
+
             GUILayout.EndHorizontal();
 
             UIUtility.Space();
@@ -328,18 +413,26 @@ namespace Falcone.BuildTool
             for (int count = 0; count < _build.Steps.Count; count++)
             {
 
-                GUILayout.BeginVertical();
+                GUILayout.BeginVertical(_settings.style.WelcomeGroup);
 
                 UIUtility.BeginCenterGroup();
                 GUILayout.Label(_build.Steps[count].Name, EditorStyles.boldLabel);
                 UIUtility.EndCenterGroup();
+
+                UIUtility.Space(1, GUILayout.MaxHeight(25));
 
                 _build.Steps[count].Name = EditorGUILayout.TextField("Name", _build.Steps[count].Name);
                 _build.Steps[count].Labels = EditorGUILayout.TextField("Label", _build.Steps[count].Labels);
 
                 GUILayout.BeginHorizontal();
                 _build.Steps[count].overwriteStep = (TemplateBuildAction)EditorGUILayout.ObjectField("Overwrite Step", _build.Steps[count].overwriteStep, typeof(TemplateBuildAction), false);
-                GUILayout.Button("Overwrite...", GUILayout.MaxWidth(80));
+
+                if (GUILayout.Button("Overwrite...", GUILayout.MaxWidth(80)))
+                {
+                    GenericMenu menu = this.GetActionsMenu("Overwrite", _build, _build.Steps[count]);
+                    menu.ShowAsContext();
+                }
+
                 GUILayout.EndHorizontal();
 
                 if (_build.Steps[count].overwriteStep == null)
@@ -357,8 +450,28 @@ namespace Falcone.BuildTool
 
                     GUILayout.BeginHorizontal();
                     _build.Steps[count].path = EditorGUILayout.TextField("Path", _build.Steps[count].path);
-                    GUILayout.Button("...", GUILayout.MaxWidth(50));
-                    GUILayout.Button("Add...", GUILayout.MaxWidth(50));
+
+                    if (GUILayout.Button("...", GUILayout.MaxWidth(50)))
+                    {
+                        _build.Steps[count].path = EditorUtility.SaveFolderPanel("Overwrite End Path", _build.Steps[count].path, "Build");
+                    }
+
+                    if (GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
+                    {
+                        GUI.FocusControl(null);
+
+                        BuildEditorSettings.Step _step = _build.Steps[count];
+
+                        GenericMenu menu = this.GetTagsMenu((_object) =>
+                                                            {
+                                                                string tag = _object as string;
+
+                                                                _step.path += "{" + tag + "}";
+                                                            });
+
+                        menu.ShowAsContext();
+                    }
+
                     GUILayout.EndHorizontal();
 
                     EditorGUI.EndDisabledGroup();
@@ -446,14 +559,24 @@ namespace Falcone.BuildTool
 
             if (GUILayout.Button("Add Step", _settings.style.WelcomeButtons))
             {
-                _editor.nextState = States.Welcome;
+                BuildEditorSettings.Step step = new BuildEditorSettings.Step();
+                step.Name = "New Step";
+
+                int count = _build.Steps.FindAll(x => x.Name.StartsWith("New Step")).Count;
+
+                if(count > 0)
+                {
+                    step.Name += " " + count;
+                }
+
+                _build.Steps.Add(step);
             }
 
             UIUtility.Space();
 
             if (GUILayout.Button("Build All", _settings.style.WelcomeButtons))
             {
-                _editor.nextState = States.Welcome;
+                BuildScript.BuildAll(_build);
             }
 
             GUILayout.EndHorizontal();
@@ -475,6 +598,112 @@ namespace Falcone.BuildTool
         }
         #endregion
 
+        #region WizardPath
+        public void InitNewPlatform(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
+        {
+
+        }
+
+        public void NewPlatform(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
+        {
+            GUILayout.BeginVertical();
+
+            UIUtility.BeginCenterGroup();
+            GUILayout.Label("Wizard: Platform - "+ _editor.currState, EditorStyles.boldLabel);
+            UIUtility.EndCenterGroup();
+
+            GUILayout.FlexibleSpace();
+
+            this.DrawWizardButtons(_build, _editor, _settings);
+
+            GUILayout.EndVertical();
+        }
+        #endregion
+
+        #region WizardPlatform
+        public void InitNewPath(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
+        {
+            this.newCurrStep = 0;
+        }
+
+        public void NewPath(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
+        {
+            GUILayout.BeginVertical();
+
+            UIUtility.BeginCenterGroup();
+            GUILayout.Label("Wizard: Path", EditorStyles.boldLabel);
+            UIUtility.EndCenterGroup();
+
+            GUILayout.FlexibleSpace();
+
+            this.DrawWizardButtons(_build, _editor, _settings);
+
+            GUILayout.EndVertical();
+        }
+        #endregion
+
+        #region WizardMisc
+        public void DrawWizardButtons(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
+        {
+            GUILayout.BeginHorizontal();
+
+            if (_editor.currState == States.NewPath)
+            {
+                if (GUILayout.Button("Cancel", _settings.style.WelcomeButtons))
+                {
+                    _editor.nextState = States.Welcome;
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Back", _settings.style.WelcomeButtons))
+                {
+                    switch (_editor.currState)
+                    {
+                        case States.NewPlatform:
+                            _editor.nextState = States.NewPath;
+                            break;
+                        case States.NewSettings:
+                            _editor.nextState = States.NewPlatform;
+                            break;
+                    }
+                }
+            }
+
+            UIUtility.Space(3);
+
+            if (GUILayout.Button("Next", _settings.style.WelcomeButtons))
+            {
+                switch (_editor.currState)
+                {
+                    case States.NewPath:
+                        _editor.nextState = States.NewPlatform;
+                        break;
+                    case States.NewPlatform:
+                        _editor.nextState = States.NewActions;
+                        this.newCurrStep = 0;
+                        break;
+                    case States.NewActions:
+                        _editor.nextState = States.NewSettings;
+                        break;
+                    case States.NewSettings:
+                        if (_build.Steps.Count < this.newCurrStep)
+                        {
+                            this.newCurrStep++;
+                        }
+                        else
+                        {
+                            _editor.nextState = States.NewEnd;
+                        }
+
+                        break;
+                }
+            }
+
+            GUILayout.EndHorizontal();
+        }
+        #endregion
+
         #region List
         public void SetupActionList(string _title, string _folder, BuildEditorSettings _build, List<TemplateBuildAction> _actions, ref ReorderableList _list)
         {
@@ -492,18 +721,8 @@ namespace Falcone.BuildTool
 
             _list.onAddCallback = (ReorderableList list) =>
             {
-                var classes = UIUtility.GetEnumerableOfType<TemplateBuildAction>();
-
-                GenericMenu menu = new GenericMenu();
-
-                foreach (var temp in classes)
-                {
-                    menu.AddItem(new GUIContent(temp.GetName()), true, this.OnAddAction, new MenuOption(_folder, _build, temp, _actions));
-                }
-
+                GenericMenu menu = this.GetActionsMenu(_folder, _build, _actions);
                 menu.ShowAsContext();
-                //EditorGUILayout.Pop
-                //_actions.Add(null);
             };
 
             _list.onRemoveCallback = (ReorderableList list) =>
@@ -557,7 +776,14 @@ namespace Falcone.BuildTool
 
             } while (!fileCreated);
 
-            option.List.Add(script as TemplateBuildAction);
+            if (option.Step != null)
+            {
+                option.Step.overwriteStep = script as TemplateBuildAction;
+            }
+            else
+            {
+                option.List.Add(script as TemplateBuildAction);
+            }
         }
 
         public void DeleteAction(int _Index, List<TemplateBuildAction> _actions)
@@ -595,6 +821,52 @@ namespace Falcone.BuildTool
             {
                 _scene.RemoveAt(list.index);
             };
+        }
+        #endregion
+
+        #region Misc
+        public GenericMenu GetActionsMenu(string _folder, BuildEditorSettings _build, List<TemplateBuildAction> _targetList)
+        {
+            var classes = UIUtility.GetEnumerableOfType<TemplateBuildAction>();
+
+            GenericMenu menu = new GenericMenu();
+
+            foreach (var temp in classes)
+            {
+                menu.AddItem(new GUIContent(temp.GetName()), true, this.OnAddAction, new MenuOption(_folder, _build, temp, _targetList));
+            }
+
+            return menu;
+        }
+
+        public GenericMenu GetActionsMenu(string _folder, BuildEditorSettings _build, BuildEditorSettings.Step _step)
+        {
+            var classes = UIUtility.GetEnumerableOfType<TemplateBuildAction>();
+
+            GenericMenu menu = new GenericMenu();
+
+            foreach (var temp in classes)
+            {
+                menu.AddItem(new GUIContent(temp.GetName()), true, this.OnAddAction, new MenuOption(_folder, _build, temp, _step));
+            }
+
+            return menu;
+        }
+
+        public GenericMenu GetTagsMenu(GenericMenu.MenuFunction2 _action)
+        {
+            var classes = UIUtility.GetEnumerableOfType<TemplateBuildAction>();
+
+            GenericMenu menu = new GenericMenu();
+
+            Dictionary<string, string> tags = BuildScript.GetDictionary();
+
+            foreach (var tag in tags)
+            {
+                menu.AddItem(new GUIContent(tag.Value), false, _action, tag.Key);
+            }
+
+            return menu;
         }
         #endregion
     }

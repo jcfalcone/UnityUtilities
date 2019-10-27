@@ -295,6 +295,7 @@ namespace Falcone.BuildTool
             AddToDictionary("Company_Name", PlayerSettings.companyName);
             AddToDictionary("Asset_Folder", Application.dataPath+"/");
             AddToDictionary("Root_Folder",  Application.dataPath.Replace("/Assets", "/"));
+            AddToDictionary("Build_Folder", Application.dataPath.Replace("/Assets", "/") + "Build/");
 
             DateTime saveUtcNow = DateTime.UtcNow;
 
@@ -320,6 +321,43 @@ namespace Falcone.BuildTool
         static void AddToDictionary(string _key, string _value)
         {
             dictionary["{" + _key + "}"] = _value;
+        }
+
+        public static Dictionary<string, string> GetDictionary()
+        {
+            Dictionary<string, string> tags = new Dictionary<string, string>();
+
+            tags["Short_Target"] = "Platform/Short Target";
+            tags["Long_Target"] = "Platform/Target";
+            tags["Extension"] = "Platform/Extension";
+
+            tags["Project_Name"] = "Project/Name";
+            tags["Company_Name"] = "Project/Company Name";
+            tags["Sequence"] = "Project/Sequence";
+
+            tags["Asset_Folder"] = "Folder/Asset Folder";
+            tags["Build_Folder"] = "Folder/Build Folder";
+            tags["Root_Folder"] = "Folder/Project Folder";
+
+            tags["Date"] = "Date/Date";
+
+            tags["Date.Day"] = "Date/Day";
+            tags["Date.Month"] = "Date/Month";
+            tags["Date.Year"] = "Date/Year";
+
+            tags["Date.ShortFull"] = "Date/Short Date Time";
+            tags["Date.LongFull"] = "Date/Long Date Time";
+
+            tags["Date.Path"] = "Date/Path Date Time";
+            tags["Date.Path.Date"] = "Date/Path Date";
+            tags["Date.Path.Time"] = "Date/Path Time";
+
+            tags["Date.ShortDate"] = "Date/Short Date";
+            tags["Date.LongDate"] = "Date/Long Date";
+            tags["Date.ShortTime"] = "Date/Short Time";
+            tags["Date.LongTime"] = "Date/Long Time";
+
+            return tags;
         }
 
         public static void CreateSampleDictionary()

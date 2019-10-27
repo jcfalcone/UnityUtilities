@@ -25,7 +25,7 @@ namespace Falcone.BuildTool
             set
             {
                 fadeStartTime = Time.realtimeSinceStartup;
-
+                Debug.Log("Changed State - "+value);
                 m_nextState = value;
             }
         }
@@ -57,12 +57,14 @@ namespace Falcone.BuildTool
         void OnEnable()
         {
             skipWelcome = EditorPrefs.GetBool("SkipWelcomeScreen");
+            currState = BuildScriptWindowState.States.Welcome;
 
             if(stateCtrl == null)
             {
                 stateCtrl = new BuildScriptWindowState();
                 stateCtrl.Init();
             }
+
             //settings = Resources.Load("EditorSettings") as BuildEditorSettings;
         }
 
@@ -84,7 +86,7 @@ namespace Falcone.BuildTool
         {
             if(staticSettings != null)
             {
-                currSettings = staticSettings;
+                this.SetLocalSetting();
             }
 
             CheckState(currSettings, this);
@@ -95,8 +97,8 @@ namespace Falcone.BuildTool
 
                 if(selectSetting != currSettings)
                 {
-                    currSettings = selectSetting;
                     staticSettings = selectSetting;
+                    this.SetLocalSetting();
                 }
             }
 
@@ -108,7 +110,9 @@ namespace Falcone.BuildTool
 
                 if (check.changed)
                 {
-                    Undo.RecordObject(currSettings, "Build Step Editor Undo");
+                    Undo.RegisterCompleteObjectUndo(currSettings, "Build Step Editor Undo");
+                    
+                    EditorUtility.SetDirty(currSettings);
                 }
             }
 
@@ -121,21 +125,8 @@ namespace Falcone.BuildTool
         {
             if(currState != nextState)
             {
-                this.currFadeVal = Mathf.MoveTowards(this.currFadeVal, 0f, (Time.realtimeSinceStartup - this.fadeStartTime) / this.fadeTime);
-
-                if (currFadeVal <= 0)
-                {
-                    stateCtrl.InitState(nextState, _build, _editor);
-                    currState = nextState;
-                    this.fadeStartTime = Time.realtimeSinceStartup;
-                }
-            }
-            else
-            {
-                if(this.currFadeVal < 1f)
-                {
-                    this.currFadeVal = Mathf.MoveTowards(this.currFadeVal, 1f, (Time.realtimeSinceStartup - this.fadeStartTime) / this.fadeTime);
-                }
+                stateCtrl.InitState(nextState, _build, _editor);
+                currState = nextState;
             }
         }
 
@@ -159,6 +150,19 @@ namespace Falcone.BuildTool
             }
 
             return settings;
+        }
+
+        public void OnUndoRedo()
+        {
+            this.Repaint();
+        }
+
+        public void SetLocalSetting()
+        {
+            this.currSettings = staticSettings;
+            Undo.RegisterCompleteObjectUndo(currSettings, "Build Step Editor Undo");
+
+            Undo.undoRedoPerformed += this.OnUndoRedo;
         }
         #endregion
     }

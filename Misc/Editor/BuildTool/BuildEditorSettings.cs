@@ -55,7 +55,9 @@ namespace Falcone.BuildTool
 
                 this.overwriteScenes = false;
                 this.scenes = new List<Object>();
-            }
+                this.preBuildActions = new List<TemplateBuildAction>();
+                this.postBuildActions = new List<TemplateBuildAction>();
+        }
 
             public static BuildPlayerOptions GetBuildOptions()
             {

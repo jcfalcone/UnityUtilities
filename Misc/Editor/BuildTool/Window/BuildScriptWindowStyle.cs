@@ -10,6 +10,8 @@ namespace Falcone.BuildTool
         public GUIStyle WelcomeGroup;
         public GUIStyle WelcomeButtons;
 
+        public GUIStyle StepGroup;
+
         public GUIStyle Title;
         public GUIStyle SubTitle;
     }
