@@ -57,6 +57,11 @@ namespace Falcone.BuildTool
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         }
 
+        public static void Alert(string _title, string _msg)
+        {
+            EditorUtility.DisplayDialog(_title, _msg, "OK");
+        }
+
         public static void SetInspectorFile(Object _selected)
         {
             Selection.activeObject = _selected;

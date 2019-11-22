@@ -291,7 +291,7 @@ namespace Falcone.BuildTool
 
         static void CreateDictionary()
         {
-            AddToDictionary("Project_Name", PlayerSettings.productName);
+            AddToDictionary("Product_Name", PlayerSettings.productName);
             AddToDictionary("Company_Name", PlayerSettings.companyName);
             AddToDictionary("Asset_Folder", Application.dataPath+"/");
             AddToDictionary("Root_Folder",  Application.dataPath.Replace("/Assets", "/"));
@@ -331,7 +331,7 @@ namespace Falcone.BuildTool
             tags["Long_Target"] = "Platform/Target";
             tags["Extension"] = "Platform/Extension";
 
-            tags["Project_Name"] = "Project/Name";
+            tags["Product_Name"] = "Project/Product Name";
             tags["Company_Name"] = "Project/Company Name";
             tags["Sequence"] = "Project/Sequence";
 
@@ -427,14 +427,14 @@ namespace Falcone.BuildTool
             {
                 if (BuildScriptUtilities.IsNewSequence(_settings))
                 {
-                    _settings.sequence++;
+                    _settings.Sequence++;
                 }
                 else
                 {
-                    _settings.sequence = 0;
+                    _settings.Sequence = 0;
                 }
 
-                tempSequence = _settings.sequence;
+                tempSequence = _settings.Sequence;
 
                 if (_extra != null)
                 {

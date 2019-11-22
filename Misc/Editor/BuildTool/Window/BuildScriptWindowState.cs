@@ -7,6 +7,14 @@ using System.IO;
 
 namespace Falcone.BuildTool
 {
+    public class StringComparer : IComparer
+    {
+        public int Compare(object x, object y)
+        {
+            return (new CaseInsensitiveComparer()).Compare(x.ToString(), y.ToString());
+        }
+    }
+
     [System.Serializable]
     public class BuildScriptWindowState
     {
@@ -41,9 +49,10 @@ namespace Falcone.BuildTool
             Welcome,
 
             NewPath,
+            NewProject,
             NewPlatform,
             NewActions,
-            NewSettings,
+            NewStep,
             NewEnd,
 
             BuildStep,
@@ -51,10 +60,33 @@ namespace Falcone.BuildTool
             ChangeSettings
         }
 
+        public enum SmartAreaType
+        {
+            None = -1,
+
+            File,
+            Path,
+            Version
+        }
+
         Vector2 scrollPosition;
+        Vector2 scrollPosition2;
+
+        Vector2 smartAreaScrollPos;
+
+        string lastSmartType;
 
         ReorderableList actionsPreBuild;
         ReorderableList actionsPostBuild;
+
+        ReorderableList WZactionsPreBuild;
+        ReorderableList WZactionsPostBuild;
+
+        ReorderableList WZactionsStepPreBuild;
+        ReorderableList WZactionsStepPostBuild;
+        ReorderableList WZScene;
+
+        string saveTempFilePath = "";
 
         int newCurrStep = 0;
 
@@ -78,8 +110,17 @@ namespace Falcone.BuildTool
                 case States.NewPath:
                     this.InitNewPath(_build, _editor);
                     break;
+                case States.NewProject:
+                    this.InitNewProject(_build, _editor);
+                    break;
+                case States.NewActions:
+                    this.InitNewActions(_build, _editor);
+                    break;
                 case States.NewPlatform:
                     this.InitNewPlatform(_build, _editor);
+                    break;
+                case States.NewStep:
+                    this.InitNewStep(_build, _editor);
                     break;
             }
         }
@@ -101,14 +142,20 @@ namespace Falcone.BuildTool
                 case States.NewPath:
                     this.NewPath(_build, _editor, _settings);
                     break;
+                case States.NewProject:
+                    this.NewProject(_build, _editor, _settings);
+                    break;
+                case States.NewActions:
+                    this.NewActions(_build, _editor, _settings);
+                    break;
                 case States.NewPlatform:
                     this.NewPlatform(_build, _editor, _settings);
                     break;
-                case States.NewActions:
-                    this.NewPlatform(_build, _editor, _settings);
+                case States.NewStep:
+                    this.NewStep(_build, _editor, _settings);
                     break;
-                case States.NewSettings:
-                    this.NewPlatform(_build, _editor, _settings);
+                case States.NewEnd:
+                    this.NewEnd(_build, _editor, _settings);
                     break;
             }
         }
@@ -201,6 +248,8 @@ namespace Falcone.BuildTool
             if (GUILayout.Button("Create a new File", _settings.style.WelcomeButtons))
             {
                 _editor.nextState = States.NewPath;
+                this.lastSmartType = "NONE";
+                _settings.tempSettings.Clear();
             }
 
             GUILayout.EndVertical();
@@ -288,300 +337,308 @@ namespace Falcone.BuildTool
 
         public void ChangeSettings(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
         {
-
-            GUILayout.BeginVertical();
-
-            UIUtility.Space();
-
-            UIUtility.BeginCenterGroup();
-            GUILayout.Label("Edit Settings", EditorStyles.boldLabel);
-            UIUtility.EndCenterGroup();
-
-            UIUtility.Space();
-
-            this.scrollPosition = EditorGUILayout.BeginScrollView(this.scrollPosition, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, _settings.style.WelcomeGroup);
-
-            UIUtility.SubTitle("Version");
-
-            _build.controlVersion = EditorGUILayout.Toggle("Control Project Version", _build.controlVersion);
-            UIUtility.Space();
-
-            EditorGUI.BeginDisabledGroup(!_build.controlVersion);
-
-            GUILayout.BeginHorizontal();
-            _build.Version = EditorGUILayout.TextField("Version Template", _build.Version);
-
-            if(GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
-            {
-                GUI.FocusControl(null);
-
-                GenericMenu menu = this.GetTagsMenu((_object) =>
-                                                    {
-                                                        string tag = _object as string;
-
-                                                        _build.Version += "{" + tag + "}";
-                                                    });
-
-                menu.ShowAsContext();
-            }
-
-            GUILayout.EndHorizontal();
-
-
-            GUILayout.BeginHorizontal();
-            EditorGUILayout.TextField("                ", "Ex.: "+BuildScript.ParseString(_build.Version), GUI.skin.label);
-            GUILayout.EndHorizontal();
-
-            EditorGUILayout.IntField("Build Sequence", _build.sequence);
-
-            EditorGUI.EndDisabledGroup();
-
-            UIUtility.Space();
-
-            UIUtility.SubTitle("Build");
-
-
-            GUILayout.BeginHorizontal();
-            _build.Path = EditorGUILayout.TextField("Destine Path", _build.Path);
-
-            if(GUILayout.Button("...", GUILayout.MaxWidth(50)))
-            {
-                _build.Path = EditorUtility.SaveFolderPanel("Build End Path", _build.Path, "Build");
-            }
-
-            if (GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
-            {
-                GUI.FocusControl(null);
-
-                GenericMenu menu = this.GetTagsMenu((_object) =>
-                                                    {
-                                                        string tag = _object as string;
-
-                                                        _build.Path += "{" + tag + "}";
-                                                    });
-
-                menu.ShowAsContext();
-            }
-
-            GUILayout.EndHorizontal();
-
-
-            GUILayout.BeginHorizontal();
-            _build.File = EditorGUILayout.TextField("File Name", _build.File);
-
-            if (GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
-            {
-                GUI.FocusControl(null);
-
-                GenericMenu menu = this.GetTagsMenu((_object) =>
-                                                    {
-                                                        string tag = _object as string;
-
-                                                        _build.File += "{" + tag + "}";
-                                                    });
-
-                menu.ShowAsContext();
-            }
-
-            GUILayout.EndHorizontal();
-
-            UIUtility.Space();
-            UIUtility.SubTitle("Actions");
-
-            this.CreateEditLists(_build);
-
-            this.actionsPreBuild.DoLayoutList();
-            UIUtility.Space();
-
-            this.actionsPostBuild.DoLayoutList();
-            UIUtility.Space();
-
-            UIUtility.SubTitle("Steps");
-
-            if (this.StepsLists == null || this.StepsLists.Count != _build.Steps.Count)
-            {
-                this.StepsLists = new List<Dictionary<string, ReorderableList>>(_build.Steps.Count);
-
-                for (int count = 0; count < _build.Steps.Count; count++)
-                {
-                    this.StepsLists.Add(new Dictionary<string, ReorderableList>());
-                }
-            }
-
-            ReorderableList tempList = null;
-
-            for (int count = 0; count < _build.Steps.Count; count++)
+            using (var check = new EditorGUI.ChangeCheckScope())
             {
 
-                GUILayout.BeginVertical(_settings.style.WelcomeGroup);
+                GUILayout.BeginVertical();
+
+                UIUtility.Space();
 
                 UIUtility.BeginCenterGroup();
-                GUILayout.Label(_build.Steps[count].Name, EditorStyles.boldLabel);
+                GUILayout.Label("Edit Settings: "+ _build.name, EditorStyles.boldLabel);
                 UIUtility.EndCenterGroup();
 
-                UIUtility.Space(1, GUILayout.MaxHeight(25));
+                UIUtility.Space();
 
-                _build.Steps[count].Name = EditorGUILayout.TextField("Name", _build.Steps[count].Name);
-                _build.Steps[count].Labels = EditorGUILayout.TextField("Label", _build.Steps[count].Labels);
+                this.scrollPosition = EditorGUILayout.BeginScrollView(this.scrollPosition, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, _settings.style.WelcomeGroup);
+
+                UIUtility.SubTitle("Version");
+
+                _build.controlVersion = EditorGUILayout.Toggle("Control Project Version", _build.controlVersion);
+                UIUtility.Space();
+
+                EditorGUI.BeginDisabledGroup(!_build.controlVersion);
 
                 GUILayout.BeginHorizontal();
-                _build.Steps[count].overwriteStep = (TemplateBuildAction)EditorGUILayout.ObjectField("Overwrite Step", _build.Steps[count].overwriteStep, typeof(TemplateBuildAction), false);
+                _build.Version = EditorGUILayout.TextField("Version Template", _build.Version);
 
-                if (GUILayout.Button("Overwrite...", GUILayout.MaxWidth(80)))
+                if(GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
                 {
-                    GenericMenu menu = this.GetActionsMenu("Overwrite", _build, _build.Steps[count]);
+                    GUI.FocusControl(null);
+
+                    GenericMenu menu = this.GetTagsMenu((_object) =>
+                                                        {
+                                                            string tag = _object as string;
+
+                                                            _build.Version += "{" + tag + "}";
+                                                        });
+
                     menu.ShowAsContext();
                 }
 
                 GUILayout.EndHorizontal();
 
-                if (_build.Steps[count].overwriteStep == null)
+
+                GUILayout.BeginHorizontal();
+                EditorGUILayout.TextField("                ", "Ex.: "+BuildScript.ParseString(_build.Version), GUI.skin.label);
+                GUILayout.EndHorizontal();
+
+                EditorGUILayout.IntField("Build Sequence", _build.Sequence);
+
+                EditorGUI.EndDisabledGroup();
+
+                UIUtility.Space();
+
+                UIUtility.SubTitle("Build");
+
+
+                GUILayout.BeginHorizontal();
+                _build.Path = EditorGUILayout.TextField("Destine Path", _build.Path);
+
+                if(GUILayout.Button("...", GUILayout.MaxWidth(50)))
                 {
-                    UIUtility.Space();
-                    _build.Steps[count].Target = (BuildTarget)EditorGUILayout.EnumPopup("Target Platform", _build.Steps[count].Target);
-                    _build.Steps[count].Option = (BuildOptions)EditorGUILayout.EnumFlagsField("Options", _build.Steps[count].Option);
+                    _build.Path = EditorUtility.SaveFolderPanel("Build End Path", _build.Path, "Build");
+                }
 
-                    UIUtility.Space();
-                    _build.Steps[count].mainBuild = EditorGUILayout.Toggle("Main Build?", _build.Steps[count].mainBuild);
-                    _build.Steps[count].zipBuild = EditorGUILayout.Toggle("Zip Build?", _build.Steps[count].zipBuild);
-                    _build.Steps[count].overwritePath = EditorGUILayout.Toggle("Custom Path?", _build.Steps[count].overwritePath);
+                if (GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
+                {
+                    GUI.FocusControl(null);
 
-                    EditorGUI.BeginDisabledGroup(!_build.Steps[count].overwritePath);
+                    GenericMenu menu = this.GetTagsMenu((_object) =>
+                                                        {
+                                                            string tag = _object as string;
+
+                                                            _build.Path += "{" + tag + "}";
+                                                        });
+
+                    menu.ShowAsContext();
+                }
+
+                GUILayout.EndHorizontal();
+
+
+                GUILayout.BeginHorizontal();
+                _build.File = EditorGUILayout.TextField("File Name", _build.File);
+
+                if (GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
+                {
+                    GUI.FocusControl(null);
+
+                    GenericMenu menu = this.GetTagsMenu((_object) =>
+                                                        {
+                                                            string tag = _object as string;
+
+                                                            _build.File += "{" + tag + "}";
+                                                        });
+
+                    menu.ShowAsContext();
+                }
+
+                GUILayout.EndHorizontal();
+
+                UIUtility.Space();
+                UIUtility.SubTitle("Actions");
+
+                this.CreateEditLists(_build);
+
+                this.actionsPreBuild.DoLayoutList();
+                UIUtility.Space();
+
+                this.actionsPostBuild.DoLayoutList();
+                UIUtility.Space();
+
+                UIUtility.SubTitle("Steps");
+
+                if (this.StepsLists == null || this.StepsLists.Count != _build.Steps.Count)
+                {
+                    this.StepsLists = new List<Dictionary<string, ReorderableList>>(_build.Steps.Count);
+
+                    for (int count = 0; count < _build.Steps.Count; count++)
+                    {
+                        this.StepsLists.Add(new Dictionary<string, ReorderableList>());
+                    }
+                }
+
+                ReorderableList tempList = null;
+
+                for (int count = 0; count < _build.Steps.Count; count++)
+                {
+
+                    GUILayout.BeginVertical(_settings.style.WelcomeGroup);
+
+                    UIUtility.BeginCenterGroup();
+                    GUILayout.Label(_build.Steps[count].Name, EditorStyles.boldLabel);
+                    UIUtility.EndCenterGroup();
+
+                    UIUtility.Space(1, GUILayout.MaxHeight(25));
+
+                    _build.Steps[count].Name = EditorGUILayout.TextField("Name", _build.Steps[count].Name);
+                    _build.Steps[count].Labels = EditorGUILayout.TextField("Label", _build.Steps[count].Labels);
 
                     GUILayout.BeginHorizontal();
-                    _build.Steps[count].path = EditorGUILayout.TextField("Path", _build.Steps[count].path);
+                    _build.Steps[count].overwriteStep = (TemplateBuildAction)EditorGUILayout.ObjectField("Overwrite Step", _build.Steps[count].overwriteStep, typeof(TemplateBuildAction), false);
 
-                    if (GUILayout.Button("...", GUILayout.MaxWidth(50)))
+                    if (GUILayout.Button("Overwrite...", GUILayout.MaxWidth(80)))
                     {
-                        _build.Steps[count].path = EditorUtility.SaveFolderPanel("Overwrite End Path", _build.Steps[count].path, "Build");
-                    }
-
-                    if (GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
-                    {
-                        GUI.FocusControl(null);
-
-                        BuildEditorSettings.Step _step = _build.Steps[count];
-
-                        GenericMenu menu = this.GetTagsMenu((_object) =>
-                                                            {
-                                                                string tag = _object as string;
-
-                                                                _step.path += "{" + tag + "}";
-                                                            });
-
+                        GenericMenu menu = this.GetActionsMenu("Overwrite", _build, _build.Steps[count]);
                         menu.ShowAsContext();
                     }
 
                     GUILayout.EndHorizontal();
 
-                    EditorGUI.EndDisabledGroup();
-
-                    UIUtility.Space();
-                    _build.Steps[count].overwriteScenes = EditorGUILayout.Toggle("Custom Scenes?", _build.Steps[count].overwriteScenes);
-
-                    EditorGUI.BeginDisabledGroup(!_build.Steps[count].overwriteScenes);
-
-                    if (!this.StepsLists[count].ContainsKey("SCENE"))
+                    if (_build.Steps[count].overwriteStep == null)
                     {
-                        //tempList = this.StepsLists[count]["SCENE"];
-                        this.SetupSceneList("Scenes", _build, _build.Steps[count].scenes, ref tempList);
+                        UIUtility.Space();
+                        _build.Steps[count].Target = (BuildTarget)EditorGUILayout.EnumPopup("Target Platform", _build.Steps[count].Target);
+                        _build.Steps[count].Option = (BuildOptions)EditorGUILayout.EnumFlagsField("Options", _build.Steps[count].Option);
 
-                        this.StepsLists[count]["SCENE"] = tempList;
+                        UIUtility.Space();
+                        _build.Steps[count].mainBuild = EditorGUILayout.Toggle("Main Build?", _build.Steps[count].mainBuild);
+                        _build.Steps[count].zipBuild = EditorGUILayout.Toggle("Zip Build?", _build.Steps[count].zipBuild);
+                        _build.Steps[count].overwritePath = EditorGUILayout.Toggle("Custom Path?", _build.Steps[count].overwritePath);
+
+                        EditorGUI.BeginDisabledGroup(!_build.Steps[count].overwritePath);
+
+                        GUILayout.BeginHorizontal();
+                        _build.Steps[count].path = EditorGUILayout.TextField("Path", _build.Steps[count].path);
+
+                        if (GUILayout.Button("...", GUILayout.MaxWidth(50)))
+                        {
+                            _build.Steps[count].path = EditorUtility.SaveFolderPanel("Overwrite End Path", _build.Steps[count].path, "Build");
+                        }
+
+                        if (GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
+                        {
+                            GUI.FocusControl(null);
+
+                            BuildEditorSettings.Step _step = _build.Steps[count];
+
+                            GenericMenu menu = this.GetTagsMenu((_object) =>
+                                                                {
+                                                                    string tag = _object as string;
+
+                                                                    _step.path += "{" + tag + "}";
+                                                                });
+
+                            menu.ShowAsContext();
+                        }
+
+                        GUILayout.EndHorizontal();
+
+                        EditorGUI.EndDisabledGroup();
+
+                        UIUtility.Space();
+                        _build.Steps[count].overwriteScenes = EditorGUILayout.Toggle("Custom Scenes?", _build.Steps[count].overwriteScenes);
+
+                        EditorGUI.BeginDisabledGroup(!_build.Steps[count].overwriteScenes);
+
+                        if (!this.StepsLists[count].ContainsKey("SCENE"))
+                        {
+                            //tempList = this.StepsLists[count]["SCENE"];
+                            this.SetupSceneList("Scenes", _build, _build.Steps[count].scenes, ref tempList);
+
+                            this.StepsLists[count]["SCENE"] = tempList;
+                        }
+
+                        if (!this.StepsLists[count].ContainsKey("PRE_BUILD"))
+                        {
+                            //tempList = this.StepsLists[count]["SCENE"];
+                            this.SetupActionList("Pre Step Build", "PreBuild/Step/", _build, _build.Steps[count].preBuildActions, ref tempList);
+
+                            this.StepsLists[count]["PRE_BUILD"] = tempList;
+                        }
+
+                        if (!this.StepsLists[count].ContainsKey("POST_BUILD"))
+                        {
+                            //tempList = this.StepsLists[count]["SCENE"];
+                            this.SetupActionList("Post Step Build", "PostBuild/Step/", _build, _build.Steps[count].postBuildActions, ref tempList);
+
+                            this.StepsLists[count]["POST_BUILD"] = tempList;
+                        }
+
+                        this.StepsLists[count]["SCENE"].DoLayoutList();
+                        UIUtility.Space();
+
+                        EditorGUI.EndDisabledGroup();
+
+                        this.StepsLists[count]["PRE_BUILD"].DoLayoutList();
+                        UIUtility.Space();
+
+                        this.StepsLists[count]["POST_BUILD"].DoLayoutList();
+                        UIUtility.Space();
                     }
 
-                    if (!this.StepsLists[count].ContainsKey("PRE_BUILD"))
-                    {
-                        //tempList = this.StepsLists[count]["SCENE"];
-                        this.SetupActionList("Pre Step Build", "PreBuild/Step/", _build, _build.Steps[count].preBuildActions, ref tempList);
+                    GUILayout.BeginHorizontal();
 
-                        this.StepsLists[count]["PRE_BUILD"] = tempList;
+                    if (GUILayout.Button("Delete", _settings.style.WelcomeButtons))
+                    {
+                        if (!EditorUtility.DisplayDialog("Delete Step?",
+                                                        "Do you want to delete the step " + _build.Steps[count].Name + "?",
+                                                        "Cancel",
+                                                        "Delete"))
+                        {
+                            _build.Steps.RemoveAt(count);
+                        }
                     }
 
-                    if (!this.StepsLists[count].ContainsKey("POST_BUILD"))
+                    if (GUILayout.Button("Build", _settings.style.WelcomeButtons))
                     {
-                        //tempList = this.StepsLists[count]["SCENE"];
-                        this.SetupActionList("Post Step Build", "PostBuild/Step/", _build, _build.Steps[count].postBuildActions, ref tempList);
-
-                        this.StepsLists[count]["POST_BUILD"] = tempList;
+                        _editor.nextState = States.Welcome;
                     }
 
-                    this.StepsLists[count]["SCENE"].DoLayoutList();
-                    UIUtility.Space();
+                    GUILayout.EndHorizontal();
 
-                    EditorGUI.EndDisabledGroup();
+                    UIUtility.HR();
 
-                    this.StepsLists[count]["PRE_BUILD"].DoLayoutList();
-                    UIUtility.Space();
+                    GUILayout.EndVertical();
 
-                    this.StepsLists[count]["POST_BUILD"].DoLayoutList();
                     UIUtility.Space();
                 }
+
+                EditorGUILayout.EndScrollView();
+
+                GUILayout.FlexibleSpace();
 
                 GUILayout.BeginHorizontal();
 
-                if (GUILayout.Button("Delete", _settings.style.WelcomeButtons))
-                {
-                    if (!EditorUtility.DisplayDialog("Delete Step?",
-                                                    "Do you want to delete the step " + _build.Steps[count].Name + "?",
-                                                    "Cancel",
-                                                    "Delete"))
-                    {
-                        _build.Steps.RemoveAt(count);
-                    }
-                }
-
-                if (GUILayout.Button("Build", _settings.style.WelcomeButtons))
+                if (GUILayout.Button("Back", _settings.style.WelcomeButtons))
                 {
                     _editor.nextState = States.Welcome;
                 }
 
-                GUILayout.EndHorizontal();
+                UIUtility.Space();
 
-                UIUtility.HR();
+                if (GUILayout.Button("Add Step", _settings.style.WelcomeButtons))
+                {
+                    BuildEditorSettings.Step step = new BuildEditorSettings.Step();
+                    step.Name = "New Step";
+
+                    int count = _build.Steps.FindAll(x => x.Name.StartsWith("New Step")).Count;
+
+                    if(count > 0)
+                    {
+                        step.Name += " " + count;
+                    }
+
+                    _build.Steps.Add(step);
+                }
+
+                UIUtility.Space();
+
+                if (GUILayout.Button("Build All", _settings.style.WelcomeButtons))
+                {
+                    BuildScript.BuildAll(_build);
+                }
+
+                GUILayout.EndHorizontal();
 
                 GUILayout.EndVertical();
 
-                UIUtility.Space();
-            }
-
-            EditorGUILayout.EndScrollView();
-
-            GUILayout.FlexibleSpace();
-
-            GUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("Back", _settings.style.WelcomeButtons))
-            {
-                _editor.nextState = States.Welcome;
-            }
-
-            UIUtility.Space();
-
-            if (GUILayout.Button("Add Step", _settings.style.WelcomeButtons))
-            {
-                BuildEditorSettings.Step step = new BuildEditorSettings.Step();
-                step.Name = "New Step";
-
-                int count = _build.Steps.FindAll(x => x.Name.StartsWith("New Step")).Count;
-
-                if(count > 0)
+                if (check.changed)
                 {
-                    step.Name += " " + count;
+                    _build.UpdateStepTags();
                 }
-
-                _build.Steps.Add(step);
             }
-
-            UIUtility.Space();
-
-            if (GUILayout.Button("Build All", _settings.style.WelcomeButtons))
-            {
-                BuildScript.BuildAll(_build);
-            }
-
-            GUILayout.EndHorizontal();
-
-            GUILayout.EndVertical();
         }
 
         void CreateEditLists(BuildEditorSettings _build)
@@ -599,28 +656,6 @@ namespace Falcone.BuildTool
         #endregion
 
         #region WizardPath
-        public void InitNewPlatform(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
-        {
-
-        }
-
-        public void NewPlatform(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
-        {
-            GUILayout.BeginVertical();
-
-            UIUtility.BeginCenterGroup();
-            GUILayout.Label("Wizard: Platform - "+ _editor.currState, EditorStyles.boldLabel);
-            UIUtility.EndCenterGroup();
-
-            GUILayout.FlexibleSpace();
-
-            this.DrawWizardButtons(_build, _editor, _settings);
-
-            GUILayout.EndVertical();
-        }
-        #endregion
-
-        #region WizardPlatform
         public void InitNewPath(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
         {
             this.newCurrStep = 0;
@@ -634,6 +669,78 @@ namespace Falcone.BuildTool
             GUILayout.Label("Wizard: Path", EditorStyles.boldLabel);
             UIUtility.EndCenterGroup();
 
+            UIUtility.Space();
+
+            EditorGUILayout.BeginVertical(_settings.style.WelcomeGroup);
+
+            GUILayout.Label("Choose the final folder for the build");
+
+            EditorGUILayout.BeginHorizontal();
+
+            GUI.SetNextControlName("PATH_FilePath");
+            _settings.tempSettings.Path = EditorGUILayout.TextField(_settings.tempSettings.Path);
+
+            if(GUILayout.Button("...", GUILayout.MaxWidth(30)))
+            {
+                _settings.tempSettings.Path = EditorUtility.SaveFolderPanel("Build End Path", _settings.tempSettings.Path, "Build");
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            UIUtility.HR();
+
+            GUILayout.Label("Choose the project name");
+
+            GUI.SetNextControlName("FILE_FileName");
+            _settings.tempSettings.File = EditorGUILayout.TextField(_settings.tempSettings.File);
+
+            EditorGUILayout.EndVertical();
+
+            this.DrawSmartArea(_editor, GUI.GetNameOfFocusedControl(), _settings);
+
+            GUILayout.FlexibleSpace();
+
+            this.DrawWizardButtons(_build, _editor, _settings, true, !string.IsNullOrEmpty(_settings.tempSettings.Path) &&  
+                                                                     !string.IsNullOrEmpty(_settings.tempSettings.File));
+
+            GUILayout.EndVertical();
+        }
+        #endregion
+
+        #region WizardProject
+        public void InitNewProject(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
+        {
+        }
+
+
+        public void NewProject(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
+        {
+            GUILayout.BeginVertical();
+
+            UIUtility.BeginCenterGroup();
+            GUILayout.Label("Wizard: Project", EditorStyles.boldLabel);
+            UIUtility.EndCenterGroup();
+
+            UIUtility.Space();
+
+            EditorGUILayout.BeginVertical(_settings.style.WelcomeGroup);
+
+            _settings.tempSettings.controlVersion = EditorGUILayout.Toggle("Control Project Version", _settings.tempSettings.controlVersion);
+
+            EditorGUI.BeginDisabledGroup(!_settings.tempSettings.controlVersion);
+            UIUtility.Space();
+
+            GUI.SetNextControlName("VERSION_Version Pattern");
+            _settings.tempSettings.Version = EditorGUILayout.TextField("Version Pattern", _settings.tempSettings.Version);
+
+            GUI.SetNextControlName("NONE_Version Sequence");
+            _settings.tempSettings.Sequence = EditorGUILayout.IntField("Version Sequence", _settings.tempSettings.Sequence);
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUILayout.EndVertical();
+
+            this.DrawSmartArea(_editor, GUI.GetNameOfFocusedControl(), _settings);
+
             GUILayout.FlexibleSpace();
 
             this.DrawWizardButtons(_build, _editor, _settings);
@@ -642,65 +749,726 @@ namespace Falcone.BuildTool
         }
         #endregion
 
+        #region WizardProjectActions
+        public void InitNewActions(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
+        {
+        }
+
+
+        public void NewActions(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
+        {
+            GUILayout.BeginVertical();
+
+            UIUtility.BeginCenterGroup();
+            GUILayout.Label("Wizard: Extra Actions", EditorStyles.boldLabel);
+            UIUtility.EndCenterGroup();
+
+            UIUtility.Space();
+
+            EditorGUILayout.BeginVertical(_settings.style.WelcomeGroup);
+
+            this.CreateWizardLists("Pre Build Actions", "Post Build Actions", _settings.tempSettings, ref this.WZactionsPreBuild, ref this.WZactionsPostBuild);
+
+            this.WZactionsPreBuild.DoLayoutList();
+            UIUtility.Space();
+            this.WZactionsPostBuild.DoLayoutList();
+
+            EditorGUILayout.EndVertical();
+
+            this.DrawSmartArea(_editor, GUI.GetNameOfFocusedControl(), _settings);
+
+            GUILayout.FlexibleSpace();
+
+            this.DrawWizardButtons(_build, _editor, _settings);
+
+            GUILayout.EndVertical();
+        }
+        #endregion
+
+        #region WizardPlatform
+        public void InitNewPlatform(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
+        {
+
+        }
+
+        public void NewPlatform(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
+        {
+            GUILayout.BeginVertical();
+
+            UIUtility.BeginCenterGroup();
+            GUILayout.Label("Wizard: Choose your Target Platform", EditorStyles.boldLabel);
+            UIUtility.EndCenterGroup();
+
+            UIUtility.Space();
+
+            var values = System.Enum.GetValues(typeof(BuildTarget));
+            System.Array.Sort(values, new StringComparer());
+
+            int numRow = Mathf.RoundToInt(_editor.position.width / 150f);
+
+            bool endGroup = true;
+            bool startGroup = false;
+
+            int count = 1;
+
+            this.scrollPosition = GUILayout.BeginScrollView(this.scrollPosition, _settings.style.WelcomeGroup, GUILayout.MaxHeight(_editor.position.height * 0.4f));
+
+            GUILayout.Label("Platforms, click to add:");
+            foreach (var value in values)
+            {
+
+                switch (value.ToString())
+                {
+                    case "iPhone":
+                    case "StandaloneOSXIntel":
+                    case "WebPlayer":
+                    case "StandaloneOSXIntel64":
+                    case "NoTarget":
+                    case "BB10":
+                    case "MetroPlayer":
+                        continue;
+                }
+
+                if (endGroup)
+                {
+                    GUILayout.BeginHorizontal();
+                    startGroup = true;
+                    endGroup = false;
+                }
+
+                string name = value.ToString().Replace("Standalone", "");
+
+                if (GUILayout.Button(name, GUILayout.MaxWidth(150f)))
+                {
+                    BuildEditorSettings.Step step = new BuildEditorSettings.Step();
+                    System.Enum.TryParse<BuildTarget>(value.ToString(), out step.Target);
+
+                    step.Name = step.Target.ToString();
+
+                    _settings.tempSettings.Steps.Add(step);
+                    _settings.tempSettings.UpdateStepTags();
+                    //GUI.FocusControl("SMART_TagBtn_" + count);
+                }
+
+                if (count > 0 && count % numRow == 0)
+                {
+                    GUILayout.EndHorizontal();
+                    endGroup = true;
+                    startGroup = false;
+                }
+
+                count++;
+                //Debug.Log(value.ToString());
+            }
+
+            if (startGroup && !endGroup)
+            {
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.EndScrollView();
+
+            UIUtility.HR();
+
+            GUILayout.Label("In Project, click to remove:");
+
+            numRow = Mathf.RoundToInt(_editor.position.width / 150f);
+
+            endGroup = true;
+            startGroup = false;
+
+            count = 1;
+
+            this.scrollPosition2 = GUILayout.BeginScrollView(this.scrollPosition2, _settings.style.WelcomeGroup, GUILayout.MaxHeight(_editor.position.height * 0.4f));
+
+            for (int countS = 0; countS < _settings.tempSettings.Steps.Count; countS++)
+            {
+                if (endGroup)
+                {
+                    GUILayout.BeginHorizontal();
+                    startGroup = true;
+                    endGroup = false;
+                }
+
+                if (GUILayout.Button(_settings.tempSettings.Steps[countS].Target.ToString(), GUILayout.MaxWidth(150f)))
+                {
+                    _settings.tempSettings.Steps.RemoveAt(countS);
+                    //GUI.FocusControl("SMART_TagBtn_" + count);
+                }
+
+                if (count > 0 && count % numRow == 0)
+                {
+                    GUILayout.EndHorizontal();
+                    endGroup = true;
+                    startGroup = false;
+                }
+
+                count++;
+            }
+
+            if (startGroup && !endGroup)
+            {
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.EndScrollView();
+
+            //BuildScript.
+
+            GUILayout.FlexibleSpace();
+
+            this.DrawWizardButtons(_build, _editor, _settings, true, _settings.tempSettings.Steps.Count > 0);
+
+            GUILayout.EndVertical();
+        }
+        #endregion
+
+        #region WizardNewStep
+        public void InitNewStep(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
+        {
+
+        }
+
+        public void NewStep(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
+        {
+            using (var check = new EditorGUI.ChangeCheckScope())
+            {
+                GUILayout.BeginVertical();
+
+                UIUtility.BeginCenterGroup();
+
+                string nameSettings = _settings.tempSettings.Steps[this.newCurrStep].Name;
+
+                if(string.IsNullOrEmpty(nameSettings))
+                {
+                    nameSettings = _settings.tempSettings.Steps[this.newCurrStep].Target.ToString();
+                }
+
+                GUILayout.Label("Wizard: Platform Settings - "+ nameSettings, EditorStyles.boldLabel);
+                UIUtility.EndCenterGroup();
+
+                UIUtility.Space();
+
+                if (GUI.GetNameOfFocusedControl().Contains("PATH"))
+                {
+                    this.scrollPosition = GUILayout.BeginScrollView(this.scrollPosition, _settings.style.WelcomeGroup, GUILayout.MaxHeight(_editor.position.height * 0.4f));
+                }
+                else
+                {
+                    this.scrollPosition = GUILayout.BeginScrollView(this.scrollPosition, _settings.style.WelcomeGroup);
+                }
+
+                _settings.tempSettings.Steps[this.newCurrStep].Name = EditorGUILayout.TextField("Name", _settings.tempSettings.Steps[this.newCurrStep].Name);
+                _settings.tempSettings.Steps[this.newCurrStep].Labels = EditorGUILayout.TextField("Label", _settings.tempSettings.Steps[this.newCurrStep].Labels);
+
+                GUILayout.BeginHorizontal();
+                _settings.tempSettings.Steps[this.newCurrStep].overwriteStep = (TemplateBuildAction)EditorGUILayout.ObjectField("Overwrite Step", _settings.tempSettings.Steps[this.newCurrStep].overwriteStep, typeof(TemplateBuildAction), false);
+
+                if (GUILayout.Button("Overwrite...", GUILayout.MaxWidth(80)))
+                {
+                    GenericMenu menu = this.GetActionsMenu("Overwrite", _build, _settings.tempSettings.Steps[this.newCurrStep]);
+                    menu.ShowAsContext();
+                }
+
+                GUILayout.EndHorizontal();
+
+                if (_settings.tempSettings.Steps[this.newCurrStep].overwriteStep == null)
+                {
+                    UIUtility.Space();
+                    _settings.tempSettings.Steps[this.newCurrStep].Target = (BuildTarget)EditorGUILayout.EnumPopup("Target Platform", _settings.tempSettings.Steps[this.newCurrStep].Target);
+                    _settings.tempSettings.Steps[this.newCurrStep].Option = (BuildOptions)EditorGUILayout.EnumFlagsField("Options", _settings.tempSettings.Steps[this.newCurrStep].Option);
+
+                    UIUtility.Space();
+                    _settings.tempSettings.Steps[this.newCurrStep].mainBuild = EditorGUILayout.Toggle("Main Build?", _settings.tempSettings.Steps[this.newCurrStep].mainBuild);
+                    _settings.tempSettings.Steps[this.newCurrStep].zipBuild = EditorGUILayout.Toggle("Zip Build?", _settings.tempSettings.Steps[this.newCurrStep].zipBuild);
+                    _settings.tempSettings.Steps[this.newCurrStep].overwritePath = EditorGUILayout.Toggle("Custom Path?", _settings.tempSettings.Steps[this.newCurrStep].overwritePath);
+
+                    EditorGUI.BeginDisabledGroup(!_settings.tempSettings.Steps[this.newCurrStep].overwritePath);
+
+                    GUILayout.BeginHorizontal();
+
+                    GUI.SetNextControlName("PATH_StepFilePath");
+                    _settings.tempSettings.Steps[this.newCurrStep].path = EditorGUILayout.TextField("Path", _settings.tempSettings.Steps[this.newCurrStep].path);
+
+                    if (GUILayout.Button("...", GUILayout.MaxWidth(50)))
+                    {
+                        _settings.tempSettings.Steps[this.newCurrStep].path = EditorUtility.SaveFolderPanel("Overwrite End Path", _settings.tempSettings.Steps[this.newCurrStep].path, "Build");
+                    }
+
+                    if (GUILayout.Button("Add...", GUILayout.MaxWidth(50)))
+                    {
+                        GUI.FocusControl(null);
+
+                        BuildEditorSettings.Step _step = _settings.tempSettings.Steps[this.newCurrStep];
+
+                        GenericMenu menu = this.GetTagsMenu((_object) =>
+                        {
+                            string tag = _object as string;
+
+                            _step.path += "{" + tag + "}";
+                        });
+
+                        menu.ShowAsContext();
+                    }
+
+                    GUILayout.EndHorizontal();
+
+                    EditorGUI.EndDisabledGroup();
+
+                    UIUtility.Space();
+                    _settings.tempSettings.Steps[this.newCurrStep].overwriteScenes = EditorGUILayout.Toggle("Custom Scenes?", _settings.tempSettings.Steps[this.newCurrStep].overwriteScenes);
+
+                    EditorGUI.BeginDisabledGroup(!_settings.tempSettings.Steps[this.newCurrStep].overwriteScenes);
+
+                    if (this.WZScene == null)
+                    {
+                        this.SetupSceneList("Scenes", _settings.tempSettings, _settings.tempSettings.Steps[this.newCurrStep].scenes, ref this.WZScene);
+                    }
+
+                    this.WZScene.DoLayoutList();
+                    UIUtility.Space();
+
+                    EditorGUI.EndDisabledGroup();
+
+                    if (this.WZactionsStepPreBuild == null)
+                    {
+                        this.SetupActionList("Pre Step Build", "PreBuild/Step/", _settings.tempSettings, _settings.tempSettings.Steps[this.newCurrStep].preBuildActions, ref this.WZactionsStepPreBuild);
+                    }
+
+                    if (this.WZactionsStepPostBuild == null)
+                    {
+                        this.SetupActionList("Post Step Build", "PostBuild/Step/", _settings.tempSettings, _settings.tempSettings.Steps[this.newCurrStep].postBuildActions, ref this.WZactionsStepPostBuild);
+                    }
+
+                    this.WZactionsStepPreBuild.DoLayoutList();
+                    UIUtility.Space();
+
+                    this.WZactionsStepPostBuild.DoLayoutList();
+                    UIUtility.Space();
+                }
+
+                GUILayout.EndScrollView();
+
+                if (GUI.GetNameOfFocusedControl().Contains("PATH"))
+                {
+                    this.DrawSmartArea(_editor, GUI.GetNameOfFocusedControl(), _settings);
+                }
+
+                GUILayout.FlexibleSpace();
+
+                this.DrawWizardButtons(_build, _editor, _settings);
+
+                GUILayout.EndVertical();
+
+                if (check.changed)
+                {
+                    _settings.tempSettings.UpdateStepTags();
+                }
+            }
+        }
+        #endregion
+
+        #region WizardNewEnd
+        public void InitNewEnd(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
+        {
+
+        }
+
+        public void NewEnd(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
+        {
+            GUILayout.BeginVertical();
+
+            UIUtility.BeginCenterGroup();
+            GUILayout.Label("Wizard: Final File", EditorStyles.boldLabel);
+            UIUtility.EndCenterGroup();
+
+            UIUtility.Space();
+
+            EditorGUILayout.BeginVertical(_settings.style.WelcomeGroup);
+
+            GUILayout.Label("Now, choose where this seetings will be saved");
+
+            EditorGUILayout.BeginHorizontal();
+
+            this.saveTempFilePath = EditorGUILayout.TextField(this.saveTempFilePath);
+
+            if (GUILayout.Button("...", GUILayout.MaxWidth(30)))
+            {
+                this.saveTempFilePath = EditorUtility.SaveFilePanelInProject("Settings File", "BuildSettings", "asset", "Final Build Settings", this.saveTempFilePath);
+                GUI.FocusControl("NONE_BackBtn");
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            UIUtility.Space();
+
+            EditorGUILayout.Toggle("Default Build Settings?", false);
+
+            EditorGUILayout.EndVertical();
+
+            GUILayout.FlexibleSpace();
+
+            if(this.DrawWizardButtons(_build, _editor, _settings, true, !string.IsNullOrEmpty(this.saveTempFilePath)))
+            {
+                if (System.IO.File.Exists(this.saveTempFilePath))
+                {
+                    AssetDatabase.DeleteAsset(this.saveTempFilePath);
+                }
+
+                BuildEditorSettings script = Object.Instantiate(_settings.tempSettings);
+                AssetDatabase.CreateAsset(script, this.saveTempFilePath);
+                AssetDatabase.SaveAssets();
+
+                _editor.currSettings = script;
+
+                var directory = new System.IO.DirectoryInfo(this.saveTempFilePath).Parent;
+
+                string[] newPath = directory.FullName.Split(new string[] { "Assets" }, System.StringSplitOptions.None);
+
+                if (_settings.tempSettings.preBuildActions.Count > 0)
+                {
+                    Debug.Log("<color=red>Path == </color>"+newPath[1] + "/" + script.name + "/Actions/PreBuild/");
+                    this.NewMoveAssets("Assets/"+newPath[1] + "/" + script.name + "/Actions/PreBuild/", _settings.tempSettings.preBuildActions);
+                }
+
+                if (_settings.tempSettings.postBuildActions.Count > 0)
+                {
+                    this.NewMoveAssets("Assets/" + newPath[1] + "/" + script.name + "/Actions/PostBuild/", _settings.tempSettings.postBuildActions);
+                }
+
+                if (_settings.tempSettings.Steps.Count > 0)
+                {
+                    for(int count = 0; count < _settings.tempSettings.Steps.Count; count++)
+                    {
+                        this.NewMoveAssets("Assets/" + newPath[1] + "/" + script.name + "/Actions/PreBuild/Steps/"+ _settings.tempSettings.Steps[count].Name+"/",
+                                           _settings.tempSettings.Steps[count].preBuildActions);
+
+                        this.NewMoveAssets("Assets/" + newPath[1] + "/" + script.name + "/Actions/PostBuild/Steps/" + _settings.tempSettings.Steps[count].Name + "/",
+                                           _settings.tempSettings.Steps[count].postBuildActions);
+                    }
+                }
+
+                //EditorUtility.FocusProjectWindow();
+                Selection.activeObject = script;
+
+                UIUtility.Alert("File Created!", "Your build settings was created!");
+
+                _editor.nextState = States.ChangeSettings;
+            }
+
+            GUILayout.EndVertical();
+        }
+
+        public void NewMoveAssets(string _newPath, List<TemplateBuildAction> _actions)
+        {
+            if(_actions.Count <= 0)
+            {
+                return;
+            }
+
+            Directory.CreateDirectory(_newPath);
+
+            AssetDatabase.Refresh();
+
+            for (int count = 0; count < _actions.Count; count++)
+            {
+                string[] oldPath = AssetDatabase.GetAssetPath(_actions[count]).Split(new string[] { "Assets" }, System.StringSplitOptions.None);
+
+                string error = AssetDatabase.MoveAsset("Assets" + oldPath[1],
+                                                       _newPath + _actions[count].name + ".asset");
+
+                if (!string.IsNullOrEmpty(error))
+                {
+                    Debug.Log("Error: " + error);
+                }
+            }
+        }
+        #endregion
+
         #region WizardMisc
-        public void DrawWizardButtons(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
+        public bool DrawWizardButtons(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings, bool _enableBack = true, bool _enableNext = true)
         {
             GUILayout.BeginHorizontal();
 
+            EditorGUI.BeginDisabledGroup(!_enableBack);
+
+            GUI.SetNextControlName("NONE_BackBtn");
             if (_editor.currState == States.NewPath)
             {
                 if (GUILayout.Button("Cancel", _settings.style.WelcomeButtons))
                 {
+                    GUI.FocusControl("NONE_BackBtn");
                     _editor.nextState = States.Welcome;
+                    _settings.tempSettings.Clear();
                 }
             }
             else
             {
                 if (GUILayout.Button("Back", _settings.style.WelcomeButtons))
                 {
+                    this.lastSmartType = "NONE";
+                    GUI.FocusControl("NONE_BackBtn");
+
                     switch (_editor.currState)
                     {
-                        case States.NewPlatform:
+                        case States.NewProject:
                             _editor.nextState = States.NewPath;
                             break;
-                        case States.NewSettings:
-                            _editor.nextState = States.NewPlatform;
+                        case States.NewActions:
+                            _editor.nextState = States.NewProject;
+                            break;
+                        case States.NewPlatform:
+                            _editor.nextState = States.NewActions;
+                            break;
+                        case States.NewStep:
+                            if (this.newCurrStep - 1 >= 0)
+                            {
+                                this.newCurrStep--;
+                                this.WZScene = null;
+                                this.WZactionsStepPreBuild = null;
+                                this.WZactionsStepPreBuild = null;
+                            }
+                            else
+                            {
+                                _editor.nextState = States.NewPlatform;
+                            }
+
+                            break;
+                        case States.NewEnd:
+                            _editor.nextState = States.NewStep;
+                            this.newCurrStep = _settings.tempSettings.Steps.Count - 1;
                             break;
                     }
                 }
             }
+            EditorGUI.EndDisabledGroup();
 
             UIUtility.Space(3);
 
-            if (GUILayout.Button("Next", _settings.style.WelcomeButtons))
-            {
-                switch (_editor.currState)
-                {
-                    case States.NewPath:
-                        _editor.nextState = States.NewPlatform;
-                        break;
-                    case States.NewPlatform:
-                        _editor.nextState = States.NewActions;
-                        this.newCurrStep = 0;
-                        break;
-                    case States.NewActions:
-                        _editor.nextState = States.NewSettings;
-                        break;
-                    case States.NewSettings:
-                        if (_build.Steps.Count < this.newCurrStep)
-                        {
-                            this.newCurrStep++;
-                        }
-                        else
-                        {
-                            _editor.nextState = States.NewEnd;
-                        }
+            EditorGUI.BeginDisabledGroup(!_enableNext);
 
-                        break;
+            GUI.SetNextControlName("NONE_NextBtn");
+            if (_editor.currState == States.NewEnd)
+            {
+                if (GUILayout.Button("Finish", _settings.style.WelcomeButtons))
+                {
+                    return true;
                 }
             }
+            else
+            {
+                if (GUILayout.Button("Next", _settings.style.WelcomeButtons))
+                {
+                    GUI.FocusControl("NONE_NextBtn");
+                    this.lastSmartType = "NONE";
+
+                    switch (_editor.currState)
+                    {
+                        case States.NewPath:
+                            _editor.nextState = States.NewProject;
+                            break;
+                        case States.NewProject:
+                            _editor.nextState = States.NewActions;
+                            break;
+                        case States.NewActions:
+                            _editor.nextState = States.NewPlatform;
+                            break;
+                        case States.NewPlatform:
+                            _editor.nextState = States.NewStep;
+                            this.newCurrStep = 0;
+                            break;
+                        case States.NewStep:
+                            if (_settings.tempSettings.Steps.Count > this.newCurrStep + 1)
+                            {
+                                this.newCurrStep++;
+                                this.WZScene = null;
+                                this.WZactionsStepPreBuild = null;
+                                this.WZactionsStepPreBuild = null;
+                            }
+                            else
+                            {
+                                _editor.nextState = States.NewEnd;
+                            }
+
+                            break;
+                        case States.NewEnd:
+                            return true;
+                    }
+                }
+            }
+            EditorGUI.EndDisabledGroup();
 
             GUILayout.EndHorizontal();
+
+            return false;
+        }
+
+        public void DrawSmartArea(BuildScriptWindowEditor _editor, string _target, BuildScriptWindowSettings _settings)
+        {
+            if(string.IsNullOrWhiteSpace(_target))
+            {
+                _target = string.Empty;
+            }
+
+            string type = _target.Split('_')[0];
+
+            switch (type)
+            {
+                case "FILE":
+
+                    UIUtility.Space();
+                    this.smartAreaScrollPos = GUILayout.BeginScrollView(this.smartAreaScrollPos);
+
+                    GUILayout.Label("Tags", EditorStyles.boldLabel);
+                    this.DrawSATags(_editor, SmartAreaType.File, _target, ref _settings.tempSettings.File);
+                    this.lastSmartType = _target;
+
+                    GUILayout.EndScrollView();
+                    break;
+                case "PATH":
+
+                    UIUtility.Space();
+                    this.smartAreaScrollPos = GUILayout.BeginScrollView(this.smartAreaScrollPos);
+
+                    GUILayout.Label("Tags", EditorStyles.boldLabel);
+
+                    if (_target.Contains("Step"))
+                    {
+                        this.DrawSATags(_editor, SmartAreaType.Path, _target, ref _settings.tempSettings.Steps[this.newCurrStep].path);
+                    }
+                    else
+                    {
+                        this.DrawSATags(_editor, SmartAreaType.Path, _target, ref _settings.tempSettings.Path);
+                    }
+
+                    this.lastSmartType = _target;
+
+                    GUILayout.EndScrollView();
+                    break;
+                case "VERSION":
+                    this.smartAreaScrollPos = GUILayout.BeginScrollView(this.smartAreaScrollPos);
+
+                    GUILayout.Label("Tags", EditorStyles.boldLabel);
+                    this.DrawSATags(_editor, SmartAreaType.Version, _target, ref _settings.tempSettings.Version);
+                    this.lastSmartType = _target;
+
+                    GUILayout.EndScrollView();
+                    break;
+                case "NONE":
+                    break;
+                case "SMART":
+                default:
+					if(!string.IsNullOrEmpty(this.lastSmartType))
+					{
+						this.DrawSmartArea(_editor, this.lastSmartType, _settings);
+					}
+                    break;
+            }
+        }
+
+        public void DrawSATags(BuildScriptWindowEditor _editor, SmartAreaType _type, string _target, ref string _field)
+        {
+
+            bool startGroup = false;
+            bool endGroup = true;
+
+            Dictionary<string, string> dicionary = BuildScript.GetDictionary();
+            int count = 1;
+
+            int numRow = Mathf.RoundToInt(_editor.position.width / 150f);
+
+
+            foreach (var tags in dicionary)
+            {
+
+                if (endGroup)
+                {
+                    GUILayout.BeginHorizontal();
+                    startGroup = true;
+                    endGroup = false;
+                }
+
+                string[] tag = tags.Value.Split('/');
+
+                switch (_type)
+                {
+                    case SmartAreaType.File:
+                        if(tag[0].Contains("Folder"))
+                        {
+                            continue;
+                        }
+
+                        break;
+                    case SmartAreaType.Path:
+                        if (tag[1].Contains("Extension"))
+                        {
+                            continue;
+                        }
+                        break;
+                    case SmartAreaType.Version:
+                        if (tag[0].Contains("Folder") || tag[0].Contains("Platform"))
+                        {
+                            continue;
+                        }
+                        break;
+                }
+
+
+                GUI.SetNextControlName("SMART_TagBtn_" + count);
+                if (GUILayout.Button(tag[1], GUILayout.MaxWidth(150f)))
+                {
+                    GUI.FocusControl("SMART_TagBtn_" + count);
+                    _field += "{"+tags.Key+"}";
+                }
+
+                if (count > 0 && count % numRow == 0)
+                {
+                    GUILayout.EndHorizontal();
+                    endGroup = true;
+                    startGroup = false;
+                }
+
+                count++;
+            }
+
+            /*for (int count = 1; count < 20; count++)
+            {
+
+                if (endGroup)
+                {
+                    GUILayout.BeginHorizontal();
+                    startGroup = true;
+                    endGroup = false;
+                }
+
+                GUI.SetNextControlName("SMART_TagBtn_"+count);
+                GUILayout.Button("Path");
+
+                if (count > 0 && count % 3 == 0)
+                {
+                    GUILayout.EndHorizontal();
+                    endGroup = true;
+                    startGroup = false;
+                }
+            }*/
+
+            if (startGroup && !endGroup)
+            {
+                GUILayout.EndHorizontal();
+            }
+        }
+
+        void CreateWizardLists(string _preTitle, string _postTitle, BuildEditorSettings _build, ref ReorderableList _preBuild, ref ReorderableList _postBuild)
+        {
+            if (_preBuild == null)
+            {
+                this.SetupActionList(_preTitle, "PreBuild", _build, _build.preBuildActions, ref _preBuild);
+            }
+
+            if (_postBuild == null)
+            {
+                this.SetupActionList(_postTitle, "PostBuild", _build, _build.postBuildActions, ref _postBuild);
+            }
         }
         #endregion
 
@@ -741,7 +1509,7 @@ namespace Falcone.BuildTool
             MenuOption option = _action as MenuOption;
 
             string path = AssetDatabase.GetAssetPath(option.BuildSetting);
-            string folder = Path.GetDirectoryName(path) + "/Actions/"+option.Folder+"/";
+            string folder = Path.GetDirectoryName(path) + "/"+ option.BuildSetting.name + "/Actions/"+option.Folder+"/";
 
             Debug.Log(folder);
 

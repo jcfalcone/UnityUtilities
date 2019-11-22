@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: BuildWindowSettings
   m_EditorClassIdentifier: 
   icon: {fileID: 2800000, guid: 5ad67c087c48f4e1babb50e42f7e3e64, type: 3}
+  tempSettings: {fileID: 11400000, guid: 1b4574cc057b62b409f3198eb3e27684, type: 2}
   style:
     WelcomeBuildButton:
       m_Name: button

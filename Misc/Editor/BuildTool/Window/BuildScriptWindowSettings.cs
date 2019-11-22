@@ -9,6 +9,7 @@ namespace Falcone.BuildTool
     public class BuildScriptWindowSettings : ScriptableObject
     {
         public Texture icon;
+        public BuildEditorSettings tempSettings;
         public BuildScriptWindowStyle style;
     }
 }

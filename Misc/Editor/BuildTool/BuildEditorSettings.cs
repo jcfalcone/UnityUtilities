@@ -14,6 +14,7 @@ namespace Falcone.BuildTool
         {
             public string Name;
             public string Labels;
+            public bool defaultSettings;
 
             [Space]
             public bool zipBuild;
@@ -62,9 +63,9 @@ namespace Falcone.BuildTool
             public static BuildPlayerOptions GetBuildOptions()
             {
                 // Get static internal "GetBuildPlayerOptionsInternal" method
-                MethodInfo method = typeof(BuildPlayerWindow).GetMethod(
-                    "GetBuildPlayerOptionsInternal",
-                    BindingFlags.NonPublic | BindingFlags.Static);
+                MethodInfo method = typeof(BuildPlayerWindow).GetMethod( "GetBuildPlayerOptionsInternal",
+                                                                         BindingFlags.NonPublic | 
+                                                                         BindingFlags.Static);
 
                 if(method == null)
                 {
@@ -80,7 +81,7 @@ namespace Falcone.BuildTool
         public bool controlVersion;
 
         [ConditionalHideAttribute("controlVersion")]
-        public int sequence;
+        public int Sequence;
 
         [ConditionalHideAttribute("controlVersion")]
         public string Version;
@@ -91,13 +92,13 @@ namespace Falcone.BuildTool
 
         [Space]
         [Header("Actions")]
-        public List<TemplateBuildAction> preBuildActions;
-        public List<TemplateBuildAction> postBuildActions;
+        public List<TemplateBuildAction> preBuildActions = new List<TemplateBuildAction>();
+        public List<TemplateBuildAction> postBuildActions = new List<TemplateBuildAction>();
 
         [Space]
         [Header("Build")]
 
-        public List<Step> Steps;
+        public List<Step> Steps = new List<Step>();
 
         public void UpdateStepTags()
         {
@@ -115,6 +116,19 @@ namespace Falcone.BuildTool
 
                 this.Steps[count].Labels += ((this.Steps[count].Labels.Length > 0)? " " : "") + BuildScriptUtilities.GetShortTargetName(this.Steps[count].Target);
             }
+        }
+
+        public void Clear()
+        {
+            this.controlVersion = false;
+            this.Sequence = 0;
+            this.Version = string.Empty;
+            this.Path = string.Empty;
+            this.File = string.Empty;
+
+            this.preBuildActions.Clear();
+            this.postBuildActions.Clear();
+            this.Steps.Clear();
         }
     }
 }
