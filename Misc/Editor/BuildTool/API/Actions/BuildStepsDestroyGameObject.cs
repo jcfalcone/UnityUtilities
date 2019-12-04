@@ -6,20 +6,32 @@ using UnityEditor.SceneManagement;
 
 namespace Falcone.BuildTool
 {
-    public class BuildStepsBakeLightAction : TemplateBuildAction
+    public class BuildStepsDestroyGameObject : TemplateBuildAction
     {
-        [SerializeField, Tooltip("Bake Scenes in this list")]
+        public enum Condition
+        {
+            And,
+            Or
+        }
+
+        [SerializeField]
+        Condition condition;
+
+        [SerializeField]
+        new string name;
+
+        [SerializeField]
+        string tag;
+
+        [Space, SerializeField, Tooltip("Destroy Game Object in this scenes")]
         Object[] customScenes;
 
         string[] currBakeScenesPath;
         UnityEngine.SceneManagement.Scene[] currBakeSceneFiles;
-        int scenesIndex;
-
-        System.DateTime timeStamp;
 
         public override string GetName()
         {
-            return "Bake Light";
+            return "Create Prefab";
         }
 
         public override bool Exec(BuildEditorSettings _settings,
@@ -28,6 +40,12 @@ namespace Falcone.BuildTool
                                   string _path,
                                   string _file)
         {
+            if (string.IsNullOrEmpty(this.name) && string.IsNullOrEmpty(this.tag))
+            {
+                this.lastError = "No name or tag set in this action";
+                return false;
+            }
+
             if (this.customScenes.Length == 0)
             {
                 if (_step == null)
@@ -42,8 +60,6 @@ namespace Falcone.BuildTool
                         this.currBakeScenesPath[count] = scene.path;
                         this.currBakeSceneFiles[count] = scene;
                     }
-
-                    this.InitializeBake();
                 }
                 else
                 {
@@ -57,8 +73,6 @@ namespace Falcone.BuildTool
                         this.currBakeScenesPath[count] = scene.path;
                         this.currBakeSceneFiles[count] = scene;
                     }
-
-                    this.InitializeBake();
                 }
             }
             else
@@ -73,56 +87,82 @@ namespace Falcone.BuildTool
                     this.currBakeScenesPath[count] = scene.path;
                     this.currBakeSceneFiles[count] = scene;
                 }
+            }
 
-                this.InitializeBake();
+            return this.DeleteGameObject();
+        }
+
+        bool DeleteGameObject()
+        {
+            if (this.condition == Condition.Or)
+            {
+                this.DeleteByName();
+                this.DeleteByTag();
+                
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(this.name) || string.IsNullOrEmpty(this.tag))
+                {
+                    this.lastError = "No name or tag set in this action";
+                    return false;
+                }
+
+                this.DeleteByTagAndName();
             }
 
             return true;
         }
 
-        void InitializeBake()
+        void DeleteByTag()
         {
-            if (Lightmapping.isRunning)
+            if (!string.IsNullOrEmpty(this.tag))
             {
-                Lightmapping.Cancel();
-            }
+                GameObject[] objects = GameObject.FindGameObjectsWithTag(this.tag);
 
-            Lightmapping.bakeCompleted += this.SaveScene;
-            Lightmapping.bakeCompleted += this.BakeNewScene;
-            BakeNewScene();
-        }
-
-        // Loop through scenes to bake and update on progress
-        private void BakeNewScene()
-        {
-            if (this.scenesIndex < this.currBakeScenesPath.Length)
-            {
-                EditorSceneManager.OpenScene(this.currBakeScenesPath[this.scenesIndex]);
-                this.timeStamp = System.DateTime.Now;
-                Lightmapping.Bake();
-            }
-            else
-            {
-                this.OnBakeCompleted();
+                for (int count = 0; count < objects.Length; count++)
+                {
+                    GameObject.DestroyImmediate(objects[count]);
+                }
             }
         }
 
-        // Saves the scene at the end of each bake before starting new bake
-        private void SaveScene()
+        void DeleteByName()
         {
-            System.TimeSpan bakeSpan = System.DateTime.Now - timeStamp;
-            string bakeTime = string.Format("{0:D2}:{1:D2}:{2:D2}", bakeSpan.Hours, bakeSpan.Minutes, bakeSpan.Seconds);
-            Debug.Log("(" + this.currBakeSceneFiles[this.scenesIndex].name + ") " + " Baked in " + bakeTime);
+            if (!string.IsNullOrEmpty(this.name))
+            {
+                bool keepSearching = false;
 
-            EditorSceneManager.SaveScene(this.currBakeSceneFiles[this.scenesIndex]);
-            this.scenesIndex++;
+                do
+                {
+                    GameObject gameObject = GameObject.Find(this.name);
+                    keepSearching = gameObject != null;
+
+                    if(keepSearching)
+                    {
+                        GameObject.DestroyImmediate(gameObject);
+                    }
+
+                } while (keepSearching);
+            }
         }
 
-        // When done baking, update the editor text
-        private void OnBakeCompleted()
+        void DeleteByTagAndName()
         {
-            Lightmapping.bakeCompleted -= this.SaveScene;
-            Lightmapping.bakeCompleted -= this.BakeNewScene;
+            if (!string.IsNullOrEmpty(this.tag))
+            {
+                GameObject[] objects = GameObject.FindGameObjectsWithTag(this.tag);
+
+                for (int count = 0; count < objects.Length; count++)
+                {
+                    if(objects[count].name != this.name)
+                    {
+                        continue;
+                    }
+
+                    GameObject.DestroyImmediate(objects[count]);
+                }
+            }
         }
     }
 }

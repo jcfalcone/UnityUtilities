@@ -6,20 +6,22 @@ using UnityEditor.SceneManagement;
 
 namespace Falcone.BuildTool
 {
-    public class BuildStepsBakeLightAction : TemplateBuildAction
+    public class BuildStepsCreatePrefab : TemplateBuildAction
     {
-        [SerializeField, Tooltip("Bake Scenes in this list")]
+        [SerializeField]
+        GameObject[] Prefab;
+
+        [SerializeField, Tooltip("Create Prefab in this scenes")]
         Object[] customScenes;
 
         string[] currBakeScenesPath;
         UnityEngine.SceneManagement.Scene[] currBakeSceneFiles;
-        int scenesIndex;
 
-        System.DateTime timeStamp;
+        //System.DateTime timeStamp;
 
         public override string GetName()
         {
-            return "Bake Light";
+            return "Create Prefab";
         }
 
         public override bool Exec(BuildEditorSettings _settings,
@@ -28,6 +30,12 @@ namespace Falcone.BuildTool
                                   string _path,
                                   string _file)
         {
+            if(this.Prefab.Length == 0)
+            {
+                this.lastError = "No prefabs set in the list";
+                return false;
+            }
+
             if (this.customScenes.Length == 0)
             {
                 if (_step == null)
@@ -42,8 +50,6 @@ namespace Falcone.BuildTool
                         this.currBakeScenesPath[count] = scene.path;
                         this.currBakeSceneFiles[count] = scene;
                     }
-
-                    this.InitializeBake();
                 }
                 else
                 {
@@ -57,8 +63,6 @@ namespace Falcone.BuildTool
                         this.currBakeScenesPath[count] = scene.path;
                         this.currBakeSceneFiles[count] = scene;
                     }
-
-                    this.InitializeBake();
                 }
             }
             else
@@ -73,56 +77,35 @@ namespace Falcone.BuildTool
                     this.currBakeScenesPath[count] = scene.path;
                     this.currBakeSceneFiles[count] = scene;
                 }
-
-                this.InitializeBake();
             }
+
+            this.CreateGameObject();
 
             return true;
         }
 
-        void InitializeBake()
+        void CreateGameObject()
         {
-            if (Lightmapping.isRunning)
+            for (int count = 0; count < this.currBakeScenesPath.Length; count++)
             {
-                Lightmapping.Cancel();
-            }
+                for (int countP = 0; countP < this.Prefab.Length; countP++)
+                {
+                    EditorSceneManager.OpenScene(this.currBakeScenesPath[count]);
+                    GameObject.Instantiate(this.Prefab[countP]);
 
-            Lightmapping.bakeCompleted += this.SaveScene;
-            Lightmapping.bakeCompleted += this.BakeNewScene;
-            BakeNewScene();
-        }
-
-        // Loop through scenes to bake and update on progress
-        private void BakeNewScene()
-        {
-            if (this.scenesIndex < this.currBakeScenesPath.Length)
-            {
-                EditorSceneManager.OpenScene(this.currBakeScenesPath[this.scenesIndex]);
-                this.timeStamp = System.DateTime.Now;
-                Lightmapping.Bake();
-            }
-            else
-            {
-                this.OnBakeCompleted();
+                    this.SaveScene(this.currBakeSceneFiles[count]);
+                }
             }
         }
 
         // Saves the scene at the end of each bake before starting new bake
-        private void SaveScene()
+        private void SaveScene(UnityEngine.SceneManagement.Scene _scene)
         {
-            System.TimeSpan bakeSpan = System.DateTime.Now - timeStamp;
-            string bakeTime = string.Format("{0:D2}:{1:D2}:{2:D2}", bakeSpan.Hours, bakeSpan.Minutes, bakeSpan.Seconds);
-            Debug.Log("(" + this.currBakeSceneFiles[this.scenesIndex].name + ") " + " Baked in " + bakeTime);
+            //System.TimeSpan bakeSpan = System.DateTime.Now - timeStamp;
+            //string bakeTime = string.Format("{0:D2}:{1:D2}:{2:D2}", bakeSpan.Hours, bakeSpan.Minutes, bakeSpan.Seconds);
+            //Debug.Log("(" + _scene.name + ") " + " Navmesh Baked in " + bakeTime);
 
-            EditorSceneManager.SaveScene(this.currBakeSceneFiles[this.scenesIndex]);
-            this.scenesIndex++;
-        }
-
-        // When done baking, update the editor text
-        private void OnBakeCompleted()
-        {
-            Lightmapping.bakeCompleted -= this.SaveScene;
-            Lightmapping.bakeCompleted -= this.BakeNewScene;
+            EditorSceneManager.SaveScene(_scene);
         }
     }
 }

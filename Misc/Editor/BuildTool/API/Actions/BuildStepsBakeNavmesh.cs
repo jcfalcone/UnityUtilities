@@ -1,26 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor.AI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 
 namespace Falcone.BuildTool
 {
-    public class BuildStepsBakeLightAction : TemplateBuildAction
+    public class BuildStepsBakeNavmesh : TemplateBuildAction
     {
         [SerializeField, Tooltip("Bake Scenes in this list")]
         Object[] customScenes;
 
         string[] currBakeScenesPath;
         UnityEngine.SceneManagement.Scene[] currBakeSceneFiles;
-        int scenesIndex;
 
         System.DateTime timeStamp;
 
         public override string GetName()
         {
-            return "Bake Light";
+            return "Bake Navmesh";
         }
+
 
         public override bool Exec(BuildEditorSettings _settings,
                                   BuildEditorSettings.Step _step,
@@ -42,8 +43,6 @@ namespace Falcone.BuildTool
                         this.currBakeScenesPath[count] = scene.path;
                         this.currBakeSceneFiles[count] = scene;
                     }
-
-                    this.InitializeBake();
                 }
                 else
                 {
@@ -57,8 +56,6 @@ namespace Falcone.BuildTool
                         this.currBakeScenesPath[count] = scene.path;
                         this.currBakeSceneFiles[count] = scene;
                     }
-
-                    this.InitializeBake();
                 }
             }
             else
@@ -73,56 +70,45 @@ namespace Falcone.BuildTool
                     this.currBakeScenesPath[count] = scene.path;
                     this.currBakeSceneFiles[count] = scene;
                 }
-
-                this.InitializeBake();
             }
+
+            this.InitializeBake();
 
             return true;
         }
 
+
         void InitializeBake()
         {
-            if (Lightmapping.isRunning)
+            if(NavMeshBuilder.isRunning)
             {
-                Lightmapping.Cancel();
+                NavMeshBuilder.Cancel();
             }
 
-            Lightmapping.bakeCompleted += this.SaveScene;
-            Lightmapping.bakeCompleted += this.BakeNewScene;
-            BakeNewScene();
+            this.BakeScenes();
         }
 
-        // Loop through scenes to bake and update on progress
-        private void BakeNewScene()
+        void BakeScenes()
         {
-            if (this.scenesIndex < this.currBakeScenesPath.Length)
+            for(int count = 0; count < this.currBakeScenesPath.Length; count++)
             {
-                EditorSceneManager.OpenScene(this.currBakeScenesPath[this.scenesIndex]);
+                EditorSceneManager.OpenScene(this.currBakeScenesPath[count]);
                 this.timeStamp = System.DateTime.Now;
-                Lightmapping.Bake();
-            }
-            else
-            {
-                this.OnBakeCompleted();
+
+                NavMeshBuilder.BuildNavMesh();
+
+                this.SaveScene(this.currBakeSceneFiles[count]);
             }
         }
 
         // Saves the scene at the end of each bake before starting new bake
-        private void SaveScene()
+        private void SaveScene(UnityEngine.SceneManagement.Scene _scene)
         {
             System.TimeSpan bakeSpan = System.DateTime.Now - timeStamp;
             string bakeTime = string.Format("{0:D2}:{1:D2}:{2:D2}", bakeSpan.Hours, bakeSpan.Minutes, bakeSpan.Seconds);
-            Debug.Log("(" + this.currBakeSceneFiles[this.scenesIndex].name + ") " + " Baked in " + bakeTime);
+            Debug.Log("(" + _scene.name + ") " + " Navmesh Baked in " + bakeTime);
 
-            EditorSceneManager.SaveScene(this.currBakeSceneFiles[this.scenesIndex]);
-            this.scenesIndex++;
-        }
-
-        // When done baking, update the editor text
-        private void OnBakeCompleted()
-        {
-            Lightmapping.bakeCompleted -= this.SaveScene;
-            Lightmapping.bakeCompleted -= this.BakeNewScene;
+            EditorSceneManager.SaveScene(_scene);
         }
     }
 }
