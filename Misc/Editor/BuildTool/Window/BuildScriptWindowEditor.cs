@@ -61,13 +61,7 @@ namespace Falcone.BuildTool
         void OnEnable()
         {
             skipWelcome = EditorPrefs.GetBool("SkipWelcomeScreen");
-            currState = BuildScriptWindowState.States.Welcome;
-
-            if(stateCtrl == null)
-            {
-                stateCtrl = new BuildScriptWindowState();
-                stateCtrl.Init();
-            }
+            this.CheckState();
 
             //settings = Resources.Load("EditorSettings") as BuildEditorSettings;
         }
@@ -117,6 +111,8 @@ namespace Falcone.BuildTool
 
             using (var check = new EditorGUI.ChangeCheckScope())
             {
+                this.CheckState();
+
                 stateCtrl.Tick(currState, currSettings, this, GetSettings());
 
                 if (check.changed)
@@ -183,6 +179,18 @@ namespace Falcone.BuildTool
             Undo.RegisterCompleteObjectUndo(currSettings, "Build Step Editor Undo");
 
             Undo.undoRedoPerformed += this.OnUndoRedo;
+        }
+
+        public void CheckState()
+        {
+            if (stateCtrl == null)
+            {
+
+                currState = BuildScriptWindowState.States.Welcome;
+
+                stateCtrl = new BuildScriptWindowState();
+                stateCtrl.Init();
+            }
         }
         #endregion
     }

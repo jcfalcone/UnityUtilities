@@ -22,6 +22,7 @@ MonoBehaviour:
   Steps:
   - Name: Jenkins Android
     Labels: Jenkins Android
+    defaultSettings: 0
     zipBuild: 1
     mainBuild: 0
     overwriteStep: {fileID: 0}
@@ -36,6 +37,7 @@ MonoBehaviour:
     postBuildActions: []
   - Name: Jenkins IOS
     Labels: Jenkins iOS
+    defaultSettings: 0
     zipBuild: 1
     mainBuild: 0
     overwriteStep: {fileID: 0}
@@ -49,6 +51,7 @@ MonoBehaviour:
     postBuildActions: []
   - Name: Android
     Labels: All Android
+    defaultSettings: 0
     zipBuild: 0
     mainBuild: 1
     overwriteStep: {fileID: 0}
@@ -63,6 +66,7 @@ MonoBehaviour:
     postBuildActions: []
   - Name: IOS
     Labels: All iOS
+    defaultSettings: 0
     zipBuild: 0
     mainBuild: 1
     overwriteStep: {fileID: 0}
@@ -77,6 +81,7 @@ MonoBehaviour:
     postBuildActions: []
   - Name: 'JULIO '
     Labels: All iOS
+    defaultSettings: 0
     zipBuild: 0
     mainBuild: 0
     overwriteStep: {fileID: 0}
