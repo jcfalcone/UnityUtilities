@@ -585,7 +585,7 @@ namespace Falcone.BuildTool
             }
 
             //Check if platform is different
-            if (!_extra.noAlerts)
+            if (_extra != null && !_extra.noAlerts)
             {
                 if(_step.Target != EditorUserBuildSettings.activeBuildTarget)
                 {
