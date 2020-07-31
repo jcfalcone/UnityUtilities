@@ -212,7 +212,7 @@ namespace Falcone.BuildTool
         #endregion
 
         #region CLI
-        [RuntimeInitializeOnLoadMethod]
+        //[RuntimeInitializeOnLoadMethod]
         static void BuildCLI()
         {
             BuildScriptUtilities.terminal = false;
