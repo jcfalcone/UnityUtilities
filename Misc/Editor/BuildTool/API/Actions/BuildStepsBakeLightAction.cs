@@ -112,7 +112,7 @@ namespace Falcone.BuildTool
         {
             System.TimeSpan bakeSpan = System.DateTime.Now - timeStamp;
             string bakeTime = string.Format("{0:D2}:{1:D2}:{2:D2}", bakeSpan.Hours, bakeSpan.Minutes, bakeSpan.Seconds);
-            Debug.Log("(" + this.currBakeSceneFiles[this.scenesIndex].name + ") " + " Baked in " + bakeTime);
+            Debug.Log("(" + this.currBakeSceneFiles[this.scenesIndex] + ") " + " Baked in " + bakeTime);
 
             EditorSceneManager.SaveScene(this.currBakeSceneFiles[this.scenesIndex]);
             this.scenesIndex++;

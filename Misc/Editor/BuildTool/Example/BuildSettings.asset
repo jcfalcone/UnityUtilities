@@ -17,7 +17,8 @@ MonoBehaviour:
   Version: '{Date.Year}.{Date.Month}.{Date.Day}.{Sequence}'
   Path: '{Build_Folder}'
   File: '{Product_Name}{Extension}'
-  preBuildActions: []
+  preBuildActions:
+  - {fileID: 11400000, guid: 3ab7f60b6285d594cb1daeb51f79f9c9, type: 2}
   postBuildActions: []
   Steps:
   - Name: Jenkins Android
