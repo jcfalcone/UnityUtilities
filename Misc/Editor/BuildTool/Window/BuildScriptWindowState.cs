@@ -193,7 +193,10 @@ namespace Falcone.BuildTool
             GUILayout.BeginHorizontal();
             if(GUILayout.Button("Build Project", _settings.style.WelcomeBuildButton))
             {
-                BuildScript.BuildAll(_build);
+                var extra = BuildScript.ExtraSettings.Default();
+                extra.noAlerts = true;
+
+                BuildScript.BuildAll(_build, extra);
             }
 
             if (GUILayout.Button("Build a Step...", _settings.style.WelcomeBuildButton))
@@ -303,7 +306,10 @@ namespace Falcone.BuildTool
                 {
                     if (GUILayout.Button("Build " + _build.Steps[count].Name, _settings.style.WelcomeButtons))
                     {
-                        BuildScript.BuildAll(_build, BuildScript.ExtraSettings.Default(), count);
+                        var extraSettings = BuildScript.ExtraSettings.Default();
+                        extraSettings.mainBuild = false;
+
+                        BuildScript.BuildAll(_build, extraSettings, count);
                     }
                 }
             }
@@ -627,7 +633,11 @@ namespace Falcone.BuildTool
 
                 if (GUILayout.Button("Build All", _settings.style.WelcomeButtons))
                 {
-                    BuildScript.BuildAll(_build);
+                    var extraSettings = BuildScript.ExtraSettings.Default();
+                    extraSettings.mainBuild = false;
+                    extraSettings.noAlerts = true;
+
+                    BuildScript.BuildAll(_build, extraSettings);
                 }
 
                 GUILayout.EndHorizontal();

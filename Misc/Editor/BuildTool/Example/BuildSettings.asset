@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: BuildSettings
   m_EditorClassIdentifier: 
   controlVersion: 1
-  Sequence: 0
+  Sequence: 1
   Version: '{Date.Year}.{Date.Month}.{Date.Day}.{Sequence}'
-  Path: 
-  File: '{Project_Name}{Extension}{Project_Name}{Sequence}'
+  Path: '{Build_Folder}'
+  File: '{Product_Name}{Extension}'
   preBuildActions: []
   postBuildActions: []
   Steps:
@@ -56,7 +56,7 @@ MonoBehaviour:
     mainBuild: 1
     overwriteStep: {fileID: 0}
     Target: 13
-    Option: 37
+    Option: 33
     overwritePath: 0
     path: 
     overwriteScenes: 0
@@ -71,7 +71,7 @@ MonoBehaviour:
     mainBuild: 1
     overwriteStep: {fileID: 0}
     Target: 9
-    Option: 37
+    Option: 33
     overwritePath: 0
     path: 
     overwriteScenes: 0

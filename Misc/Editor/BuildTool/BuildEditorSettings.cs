@@ -32,14 +32,14 @@ namespace Falcone.BuildTool
             [Header("Path")]
             public bool overwritePath;
 
-            [ConditionalHideAttribute("overwritePath")]
+            //[ConditionalHideAttribute("overwritePath")]
             public string path;
 
             [Space]
             [Header("Scene")]
             public bool overwriteScenes;
 
-            [ConditionalHideAttribute("overwritePath")]
+            //[ConditionalHideAttribute("overwritePath")]
             public List<Object> scenes;
 
             [Space]
@@ -80,10 +80,10 @@ namespace Falcone.BuildTool
         [Header("Project")]
         public bool controlVersion;
 
-        [ConditionalHideAttribute("controlVersion")]
+        //[ConditionalHideAttribute("controlVersion")]
         public int Sequence;
 
-        [ConditionalHideAttribute("controlVersion")]
+        //[ConditionalHideAttribute("controlVersion")]
         public string Version;
 
         [Header("File")]

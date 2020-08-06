@@ -16,6 +16,7 @@ namespace Falcone.BuildTool
             public List<string> tags = new List<string>();
             public bool forceDev;
             public bool noAlerts;
+            public bool mainBuild = true;
 
             public int forceSequence = -1;
 
@@ -543,10 +544,22 @@ namespace Falcone.BuildTool
                 buildPath = ParseString(_step.path);
             }
 
+            if(string.IsNullOrEmpty(buildPath))
+            {
+                BuildScriptUtilities.LogError("Destination Path can't be null!!");
+                return;
+            }
+
             //Check if a custom build step is set
             if (_step.overwriteStep != null)
             {
                 _step.overwriteStep.Exec(_settings, _step, _extra, buildPath, filePath);
+                return;
+            }
+
+            if(File.Exists(buildPath + "/" + filePath) || Directory.Exists(buildPath + "/" + filePath))
+            {
+                BuildScriptUtilities.LogError("Another Build found at "+ buildPath + "/" + filePath);
                 return;
             }
 
@@ -585,6 +598,16 @@ namespace Falcone.BuildTool
             }
 
             //Check if platform is different
+            if (_extra != null && _extra.mainBuild)
+            {
+                if (!_step.mainBuild)
+                {
+                    return;
+                }
+            }
+
+
+            //Check if platform is different
             if (_extra != null && !_extra.noAlerts)
             {
                 if(_step.Target != EditorUserBuildSettings.activeBuildTarget)
@@ -599,6 +622,13 @@ namespace Falcone.BuildTool
 
             //Switching platforms
             SetStep("Building Step: " + _step.Name + " - Switching Platform to "+ _step.Target);
+
+            if(!IsPlatformSupported(_step.Target))
+            {
+                BuildScriptUtilities.Log("Platform "+ _step.Target + " not supported, please download the Unity Module");
+                return;
+            }
+
 
             bool switchResult = EditorUserBuildSettings.SwitchActiveBuildTarget(BuildScriptUtilities.GetTargetGroup(_step.Target), _step.Target);
 
@@ -640,6 +670,7 @@ namespace Falcone.BuildTool
                 }
             }
 
+
             SetStep("Building Step: " + _step.Name + " - Building Project");
             //Create the Build and Zip
 
@@ -657,6 +688,18 @@ namespace Falcone.BuildTool
             if(summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
             {
                 BuildScriptUtilities.LogError("Building Step: Build Failed - Target: "+ _step.Name + " Time:" + summary.totalTime + " Total Errors: " + summary.totalErrors);
+
+                foreach(var step in report.steps)
+                {
+                    foreach (var message in step.messages)
+                    {
+                        if (message.type != LogType.Log)
+                        {
+                            BuildScriptUtilities.LogError(message.content);
+                        }
+                    }
+                }
+
                 return;
             }
 
@@ -682,6 +725,15 @@ namespace Falcone.BuildTool
                     }
                 }
             }
+        }
+
+        static bool IsPlatformSupported(BuildTarget _target)
+        {
+            var moduleManager = System.Type.GetType("UnityEditor.Modules.ModuleManager,UnityEditor.dll");
+            var isPlatformSupportLoaded = moduleManager.GetMethod("IsPlatformSupportLoaded", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            var getTargetStringFromBuildTarget = moduleManager.GetMethod("GetTargetStringFromBuildTarget", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+
+            return (bool)isPlatformSupportLoaded.Invoke(null, new object[] { (string)getTargetStringFromBuildTarget.Invoke(null, new object[] { _target }) });
         }
         #endregion
     }

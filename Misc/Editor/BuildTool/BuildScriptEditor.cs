@@ -20,7 +20,11 @@ namespace Falcone.BuildTool
                 {
                     BuildScript.onStep += this.OnStep;
                     BuildScript.onComplete += this.OnComplete;
-                    BuildScript.BuildAll(this.buildSetting);
+
+                    var extra = BuildScript.ExtraSettings.Default();
+                    extra.noAlerts = true;
+
+                    BuildScript.BuildAll(this.buildSetting, extra);
                 }
 
                 if (BuildScript.isBuilding)
