@@ -29,7 +29,7 @@ namespace Falcone.BuildTool
                                   string _path,
                                   string _file)
         {
-            if (this.customScenes.Length == 0)
+            if (this.customScenes == null || this.customScenes.Length == 0)
             {
                 if (_step == null)
                 {

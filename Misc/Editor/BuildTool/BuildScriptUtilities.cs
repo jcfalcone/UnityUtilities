@@ -51,7 +51,7 @@ namespace Falcone.BuildTool
 
             for (int count = 0; count < _step.scenes.Count; count++)
             {
-                scenes[count] = AssetDatabase.GetAssetPath(_step.scenes[count]) + "/" + _step.scenes[count].name;
+                scenes[count] = AssetDatabase.GetAssetPath(_step.scenes[count]); //+ "/" + _step.scenes[count].name;
             }
 
             return scenes;

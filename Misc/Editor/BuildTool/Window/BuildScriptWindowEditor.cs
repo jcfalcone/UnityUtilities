@@ -125,6 +125,13 @@ namespace Falcone.BuildTool
                     }
                     else
                     {
+
+                        if(GetSettings() == null)
+                        {
+                            BuildScriptUtilities.LogError("Build Steps Settings file not found!");
+                            return;
+                        }
+
                         Undo.RegisterCompleteObjectUndo(GetSettings().tempSettings, "Build Step Editor Undo - Temp");
 
                         EditorUtility.SetDirty(GetSettings().tempSettings);

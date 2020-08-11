@@ -557,7 +557,8 @@ namespace Falcone.BuildTool
                 return;
             }
 
-            if(File.Exists(buildPath + "/" + filePath) || Directory.Exists(buildPath + "/" + filePath))
+            if ((_step.Option & BuildOptions.AcceptExternalModificationsToPlayer) != BuildOptions.AcceptExternalModificationsToPlayer && 
+                (File.Exists(buildPath + "/" + filePath) || Directory.Exists(buildPath + "/" + filePath)))
             {
                 BuildScriptUtilities.LogError("Another Build found at "+ buildPath + "/" + filePath);
                 return;
