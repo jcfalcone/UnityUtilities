@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47e739541047cef4c8a74e2dea280819, type: 3}
-  m_Name: Bake Light
+  m_Script: {fileID: 11500000, guid: 65d461ba7281ba84da9a75dc594d4354, type: 3}
+  m_Name: Bake Navmesh
   m_EditorClassIdentifier: 
   customScenes: []
