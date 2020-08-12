@@ -31,7 +31,7 @@ namespace Falcone.BuildTool
 
         public override string GetName()
         {
-            return "Create Prefab";
+            return "Destroy Object";
         }
 
         public override bool Exec(BuildEditorSettings _settings,
