@@ -40,6 +40,12 @@ namespace Falcone.BuildTool
         float fadeTime = 0.5f;
 
         [MenuItem("Build/Editor")]
+        static void ShowWindow()
+        {
+            ShowWindow(false);
+        }
+
+
         static void ShowWindow(bool _editing = false)
         {
             editor = EditorWindow.GetWindow<BuildScriptWindowEditor>();
@@ -94,6 +100,11 @@ namespace Falcone.BuildTool
                 editFile = false;
             }
 
+            if(currSettings == null && currState == BuildScriptWindowState.States.ChangeSettings)
+            {
+                nextState = BuildScriptWindowState.States.Welcome;
+            }
+
             CheckState(currSettings, this);
 
             if(Selection.objects.Length > 0 && Selection.objects[0] is BuildEditorSettings)
@@ -126,7 +137,7 @@ namespace Falcone.BuildTool
                     else
                     {
 
-                        if(GetSettings() == null)
+                        if(GetSettings() == null || GetSettings().tempSettings == null)
                         {
                             BuildScriptUtilities.LogError("Build Steps Settings file not found!");
                             return;

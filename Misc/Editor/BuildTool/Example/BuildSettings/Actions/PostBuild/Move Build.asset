@@ -9,8 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e3171fa96ceca24b8b924819ee137e7, type: 3}
-  m_Name: CMD
+  m_Script: {fileID: 11500000, guid: d0831c56c1f4a3f4a9be69437d7a6a7d, type: 3}
+  m_Name: Move Build
   m_EditorClassIdentifier: 
-  type: 1
-  Command: Notepad
+  TargetPath: '{Root_Folder}/Final/'

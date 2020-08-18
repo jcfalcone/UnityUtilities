@@ -10,6 +10,8 @@ namespace Falcone.BuildTool
         [SerializeField, Tooltip("Path where the files will be copied")]
         string TargetPath;
 
+        string ParsedPath;
+
         public override string GetName()
         {
             return "Move Build";
@@ -21,10 +23,13 @@ namespace Falcone.BuildTool
                                   string _path,
                                   string _file)
         {
-            if (!Directory.Exists(this.TargetPath))
+            this.ParsedPath = BuildScript.ParseString(this.TargetPath);
+
+            if (!Directory.Exists(this.ParsedPath))
             {
-                this.lastError = "Invalid Target Folder: " + this.TargetPath;
-                return false;
+                Directory.CreateDirectory(this.ParsedPath);
+                /*this.lastError = "Invalid Target Folder: " + this.TargetPath;
+                return false;*/
             }
 
             if (_step == null)
@@ -53,7 +58,7 @@ namespace Falcone.BuildTool
             if (string.IsNullOrEmpty(_path))
             {
                 buildPath = BuildScript.ParseString(_settings.Path);
-                filePath = BuildScript.ParseString(_settings.File);
+                //filePath = BuildScript.ParseString(_settings.File);
 
                 //Replace step if necessary
                 if (_step.overwritePath)
@@ -64,15 +69,15 @@ namespace Falcone.BuildTool
 
             if(_step.zipBuild)
             {
-                Directory.SetCurrentDirectory(_path);
+                Directory.SetCurrentDirectory(buildPath);
                 string parentFolder = Directory.GetCurrentDirectory();
                 filePath = parentFolder + ".zip";
             }
 
             if(string.IsNullOrEmpty(filePath))
             {
-                DirectoryCopy(filePath,
-                              this.TargetPath,
+                DirectoryCopy(buildPath,
+                              this.ParsedPath,
                               true);
             }
             else
@@ -80,7 +85,7 @@ namespace Falcone.BuildTool
                 try
                 {
                     File.Copy(buildPath + "/" + filePath,
-                              this.TargetPath + "/" + filePath, 
+                              this.ParsedPath + "/" + filePath, 
                               false);
                 }
                 catch (IOException iox)
