@@ -15,6 +15,13 @@ namespace Falcone.BuildTool
         }
     }
 
+    public class BuildOption
+    {
+        public string Name;
+        public string Description;
+        public BuildOptions Build;
+    }
+
     [System.Serializable]
     public class BuildScriptWindowState
     {
@@ -128,6 +135,7 @@ namespace Falcone.BuildTool
         public void Tick(States _state, BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
         {
             Debug.Log("Tick " + _state);
+
             switch (_state)
             {
                 case States.Welcome:
@@ -327,6 +335,11 @@ namespace Falcone.BuildTool
 
             UIUtility.Space(4);
 
+            if (GUILayout.Button("Edit", _settings.style.WelcomeButtons))
+            {
+                _editor.nextState = States.ChangeSettings;
+            }
+
             GUILayout.EndHorizontal();
 
             GUILayout.EndVertical();
@@ -496,7 +509,10 @@ namespace Falcone.BuildTool
                     {
                         UIUtility.Space();
                         _build.Steps[count].Target = (BuildTarget)EditorGUILayout.EnumPopup("Target Platform", _build.Steps[count].Target);
-                        _build.Steps[count].Option = (BuildOptions)EditorGUILayout.EnumFlagsField("Options", _build.Steps[count].Option);
+                        //_build.Steps[count].Option = (BuildOptions)EditorGUILayout.EnumFlagsField("Options", _build.Steps[count].Option);
+
+                        UIUtility.Space();
+                        DrawOptions(ref _build.Steps[count].Option, _editor, _settings);
 
                         UIUtility.Space();
                         _build.Steps[count].mainBuild = EditorGUILayout.Toggle("Main Build?", _build.Steps[count].mainBuild);
@@ -986,7 +1002,9 @@ namespace Falcone.BuildTool
                 {
                     UIUtility.Space();
                     _settings.tempSettings.Steps[this.newCurrStep].Target = (BuildTarget)EditorGUILayout.EnumPopup("Target Platform", _settings.tempSettings.Steps[this.newCurrStep].Target);
-                    _settings.tempSettings.Steps[this.newCurrStep].Option = (BuildOptions)EditorGUILayout.EnumFlagsField("Options", _settings.tempSettings.Steps[this.newCurrStep].Option);
+
+                    UIUtility.Space();
+                    DrawOptions(ref _settings.tempSettings.Steps[this.newCurrStep].Option, _editor, _settings);
 
                     UIUtility.Space();
                     _settings.tempSettings.Steps[this.newCurrStep].mainBuild = EditorGUILayout.Toggle("Main Build?", _settings.tempSettings.Steps[this.newCurrStep].mainBuild);
@@ -1645,6 +1663,106 @@ namespace Falcone.BuildTool
             }
 
             return menu;
+        }
+
+        void DrawOptions(ref BuildOptions _options, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
+        {
+            GUILayout.Label("Options");
+
+
+            string[] names = System.Enum.GetNames(typeof(BuildOptions));
+
+            GUILayout.BeginVertical();
+            GUILayout.BeginHorizontal();
+
+            int count = 1;
+            bool beginHorizontal = false;
+            bool endHorizontal = false;
+
+            List<BuildOption> options = GetBuildOptions();
+
+            _settings.style.ToggleButtonStyleNormal = new GUIStyle(_settings.style.WelcomeButtons);
+
+            int numRow = Mathf.RoundToInt(_editor.position.width / 150f);
+
+            foreach (BuildOption option in options)
+            {
+                if(beginHorizontal)
+                {
+                    GUILayout.BeginHorizontal();
+                    beginHorizontal = false;
+                    endHorizontal = true;
+                }
+
+                bool value = GUILayout.Toggle(((_options & option.Build) != 0), new GUIContent(option.Name, option.Description), _settings.style.ToggleButtonStyleNormal, GUILayout.MaxWidth(150f));
+
+                if(value)
+                {
+                    _options |= option.Build;
+                }
+                else
+                {
+
+                    _options &= ~option.Build;
+                }
+
+                /*if (GUILayout.Button(option.Name, ((_options & option.Build) != 0) ? _settings.style.ToggleButtonStyleToggled : _settings.style.ToggleButtonStyleNormal))
+                {
+                    _options ^= option.Build;
+                }*/
+
+                if (count != 0 && count % numRow == 0)
+                {
+                    GUILayout.EndHorizontal();
+                    beginHorizontal = true;
+                    endHorizontal = false;
+                }
+
+                count++;
+            }
+
+            if (endHorizontal)
+            {
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.EndVertical();
+        }
+
+        List<BuildOption> GetBuildOptions()
+        {
+            List<BuildOption> options = new List<BuildOption>();
+
+            options.Add(new BuildOption { Name = "External Changes", Description = "Keep external changes in IOS and Android", Build = BuildOptions.AcceptExternalModificationsToPlayer });
+            options.Add(new BuildOption { Name = "Allow Debugging", Description = "Allow remote Script Debug", Build = BuildOptions.AllowDebugging });
+            options.Add(new BuildOption { Name = "Auto Run Player", Description = "Run the Build", Build = BuildOptions.AutoRunPlayer });
+            options.Add(new BuildOption { Name = "Add. Streamed Scenes", Description = "Build Compressed bundle with streamed scenes", Build = BuildOptions.BuildAdditionalStreamedScenes });
+            options.Add(new BuildOption { Name = "Build Script", Description = "Only Build Scripts", Build = BuildOptions.BuildScriptsOnly });
+            //options.Add(new BuildOption { Name = "", Description = "", Build = BuildOptions.CompressTextures });
+            options.Add(new BuildOption { Name = "Compress Lz4", Description = "Compress with LZ4", Build = BuildOptions.CompressWithLz4 });
+            options.Add(new BuildOption { Name = "Compress Lz4HC", Description = "Compress with LZ4 High Compression", Build = BuildOptions.CompressWithLz4HC });
+            options.Add(new BuildOption { Name = "Material CRC", Description = "Compute Material CRC Hash", Build = BuildOptions.ComputeCRC });
+            options.Add(new BuildOption { Name = "Connect Host", Description = "Connect the Build to the Editor", Build = BuildOptions.ConnectToHost });
+            options.Add(new BuildOption { Name = "Connect Profiler", Description = "Connect the Build to the Profiler", Build = BuildOptions.ConnectWithProfiler });
+            options.Add(new BuildOption { Name = "Detailed Build", Description = "Detailed Build Reports", Build = BuildOptions.DetailedBuildReport });
+            //options.Add(new BuildOption { Name = "", Description = "", Build = BuildOptions.Development });
+            options.Add(new BuildOption { Name = "Code Coverage", Description = "Enable Code Coverage", Build = BuildOptions.EnableCodeCoverage });
+            options.Add(new BuildOption { Name = "Deep Profiling", Description = "Enable Deep Profiling", Build = BuildOptions.EnableDeepProfilingSupport });
+            options.Add(new BuildOption { Name = "Headless", Description = "Headless Mode", Build = BuildOptions.EnableHeadlessMode });
+            options.Add(new BuildOption { Name = "Force Assertions", Description = "Force Assertions outside of Dev Build", Build = BuildOptions.ForceEnableAssertions });
+            //options.Add(new BuildOption { Name = "", Description = "", Build = BuildOptions.ForceOptimizeScriptCompilation });
+            options.Add(new BuildOption { Name = "Test Assemblies", Description = "Include Assemblies for Testing", Build = BuildOptions.IncludeTestAssemblies });
+            options.Add(new BuildOption { Name = "Inst. Build Folder", Description = "Place the player in the build folder", Build = BuildOptions.InstallInBuildFolder });
+            options.Add(new BuildOption { Name = "No U. Identifier", Description = "Force buildGUID to zero", Build = BuildOptions.NoUniqueIdentifier });
+            options.Add(new BuildOption { Name = "Patch Package", Description = "Path a Development APP", Build = BuildOptions.PatchPackage });
+            options.Add(new BuildOption { Name = "Show Built", Description = "Show the Built Folder", Build = BuildOptions.ShowBuiltPlayer });
+            options.Add(new BuildOption { Name = "Strict Mode", Description = "Stop build if any error is found", Build = BuildOptions.StrictMode });
+            //options.Add(new BuildOption { Name = "", Description = "", Build = BuildOptions.StripDebugSymbols });
+            options.Add(new BuildOption { Name = "Symlink Libraries", Description = "Symlink Libraries for XCode Projects ( faster interation time )", Build = BuildOptions.SymlinkLibraries });
+            options.Add(new BuildOption { Name = "Uncompressed Bundle", Description = "Uncompressed Asset Bundles", Build = BuildOptions.UncompressedAssetBundle });
+            options.Add(new BuildOption { Name = "Wait Player", Description = "Wait for Player", Build = BuildOptions.WaitForPlayerConnection });
+
+            return options;
         }
         #endregion
     }

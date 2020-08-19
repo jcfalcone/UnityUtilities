@@ -100,7 +100,7 @@ namespace Falcone.BuildTool
                 editFile = false;
             }
 
-            if(currSettings == null && currState == BuildScriptWindowState.States.ChangeSettings)
+            if(currSettings == null && (currState == BuildScriptWindowState.States.ChangeSettings || nextState == BuildScriptWindowState.States.ChangeSettings))
             {
                 nextState = BuildScriptWindowState.States.Welcome;
             }

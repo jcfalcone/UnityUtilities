@@ -18,5 +18,7 @@ namespace Falcone.BuildTool
 
         public GUIStyle WizardPlatformButton;
         public GUIStyle WizardSelPlatformButton;
+
+        public GUIStyle ToggleButtonStyleNormal;
     }
 }
