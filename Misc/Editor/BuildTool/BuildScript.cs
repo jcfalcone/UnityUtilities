@@ -197,15 +197,28 @@ namespace Falcone.BuildTool
         {
             if (_setting == null)
             {
-                BuildEditorSettings[] settings = Resources.FindObjectsOfTypeAll<BuildEditorSettings>();
+                string[] guids = AssetDatabase.FindAssets("t:BuildEditorSettings");
 
-                if (settings.Length == 0)
+                if (guids.Length == 0)
                 {
                     BuildScriptUtilities.LogError("No build setting found!");
                     return;
                 }
 
-                _setting = settings[0];
+                for (int count = 0; count < guids.Length; count++)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guids[count]);
+
+                    BuildEditorSettings settings = AssetDatabase.LoadAssetAtPath<BuildEditorSettings>(path);
+
+                    if(settings != null)
+                    {
+                        _setting = settings;
+                        break;
+                    }
+                }
+
+                //_setting = settings[0];
             }
 
             BuildSettings(_setting, _extra, _index);
