@@ -386,7 +386,51 @@ namespace Falcone.BuildTool
 
         public static void ZipBuild(string _build, string _path, string _file)
         {
-            System.IO.Compression.ZipFile.CreateFromDirectory(_build, _path + _file);
+            #if _ZIP_FILE_
+                System.IO.Compression.ZipFile.CreateFromDirectory(_build, _path + _file);
+            #endif
+        }
+		
+		public static void GenerateFileForZip()
+        {
+            string path = Application.dataPath;
+            string file = "/csc.rsp";
+
+            string fullPath = path + file;
+
+            Debug.Log("Checking prerequisites files...");
+
+            if (File.Exists(fullPath))
+            {
+                Debug.Log("File found, checking content for prerequisites...");
+                StreamReader theReader = new StreamReader(fullPath, Encoding.Default);
+                string checkCondition = theReader.ReadToEnd();
+                theReader.Close();
+
+                if(!checkCondition.Contains("-r:System.IO.Compression.FileSystem.dll"))
+                {
+                    Debug.Log("Writing files conditions...");
+                    StreamWriter writer = new StreamWriter(fullPath, true);
+                    writer.WriteLine("\n-r:System.IO.Compression.FileSystem.dll\n");
+                    writer.Close();
+                }
+            }
+            else
+            {
+                Debug.Log("File not found, creating new file...");
+                FileStream createdFile = File.Create(fullPath);
+                createdFile.Close();
+
+                Debug.Log("Writing files conditions...");
+                StreamWriter writer = new StreamWriter(fullPath, true);
+                writer.WriteLine("\n-r:System.IO.Compression.FileSystem.dll\n");
+                writer.Close();
+            }
+
+            Debug.Log("Creating tags and variables...");
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, "_ZIP_FILE_");
+
+            Debug.Log("Generation Complete.");
         }
 
         static void CalcBuildProgress(BuildEditorSettings _settings)

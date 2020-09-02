@@ -292,6 +292,13 @@ namespace Falcone.BuildTool
             }
 
             GUILayout.EndVertical();
+			
+			if (GUILayout.Button("Generate Config Files", _settings.style.WelcomeButtons))
+            {
+                BuildScript.GenerateFileForZip();
+
+                Debug.Log("Files Generated Successfully");
+            }
         }
         #endregion
 
