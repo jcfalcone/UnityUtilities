@@ -3,12 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Reflection;
+using System;
 
 namespace Falcone.BuildTool
 {
     [CreateAssetMenu(menuName = "Tools/Build/Settings")]
     public class BuildEditorSettings : ScriptableObject
     {
+        [Flags]
+        public enum Type
+        {
+            Default = 0,
+            Other = 2,
+            Sample = 4,
+            Editor = 8
+        }
+
         [System.Serializable]
         public class Step
         {
@@ -40,7 +50,7 @@ namespace Falcone.BuildTool
             public bool overwriteScenes;
 
             //[ConditionalHideAttribute("overwritePath")]
-            public List<Object> scenes;
+            public List<UnityEngine.Object> scenes;
 
             [Space]
             [Header("Actions")]
@@ -55,7 +65,7 @@ namespace Falcone.BuildTool
                 this.Option = GetBuildOptions().options;
 
                 this.overwriteScenes = false;
-                this.scenes = new List<Object>();
+                this.scenes = new List<UnityEngine.Object>();
                 this.preBuildActions = new List<TemplateBuildAction>();
                 this.postBuildActions = new List<TemplateBuildAction>();
         }
@@ -85,6 +95,8 @@ namespace Falcone.BuildTool
 
         //[ConditionalHideAttribute("controlVersion")]
         public string Version;
+
+        public Type type;
 
         [Header("File")]
         public string Path;

@@ -212,10 +212,17 @@ namespace Falcone.BuildTool
 
                     BuildEditorSettings settings = AssetDatabase.LoadAssetAtPath<BuildEditorSettings>(path);
 
-                    if(settings != null)
+                    if(settings != null && settings.type != BuildEditorSettings.Type.Editor)
                     {
-                        _setting = settings;
-                        break;
+                        if (_setting == null || (int)settings.type < (int)_setting.type)
+                        {
+                            _setting = settings;
+                        }
+
+                        if (_setting.type == BuildEditorSettings.Type.Default)
+                        {
+                            break;
+                        }
                     }
                 }
 

@@ -15,6 +15,7 @@ MonoBehaviour:
   controlVersion: 1
   Sequence: 0
   Version: '{Date.ShortFull}'
+  type: 8
   Path: C:/Projects/BuildSteps/BuildSteps/Build
   File: '{Product_Name}_{Date.Path}'
   preBuildActions: []

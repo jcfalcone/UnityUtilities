@@ -1154,6 +1154,8 @@ namespace Falcone.BuildTool
                 AssetDatabase.CreateAsset(script, this.saveTempFilePath);
                 AssetDatabase.SaveAssets();
 
+                script.type = BuildEditorSettings.Type.Other;
+
                 _editor.currSettings = script;
 
                 var directory = new System.IO.DirectoryInfo(this.saveTempFilePath).Parent;

@@ -15,6 +15,7 @@ MonoBehaviour:
   controlVersion: 1
   Sequence: 0
   Version: '{Date.Year}.{Date.Month}.{Date.Day}.{Sequence}'
+  type: 4
   Path: '{Build_Folder}'
   File: '{Product_Name}{Extension}'
   preBuildActions: []
