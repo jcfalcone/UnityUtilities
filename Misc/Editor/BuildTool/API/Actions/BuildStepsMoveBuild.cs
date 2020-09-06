@@ -69,6 +69,14 @@ namespace Falcone.BuildTool
 
             if(_step.zipBuild)
             {
+
+                // If the source directory does not exist, throw an exception.
+                if (!Directory.Exists(buildPath))
+                {
+                    this.lastError = "Source directory does not exist or could not be found: " + buildPath;
+                    return;
+                }
+
                 Directory.SetCurrentDirectory(buildPath);
                 string parentFolder = Directory.GetCurrentDirectory();
                 filePath = parentFolder + ".zip";
