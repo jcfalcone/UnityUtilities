@@ -666,7 +666,7 @@ namespace Falcone.BuildTool
                 }
             }
 
-            SetStep("Building Step: " + _step.Target);
+            SetStep("Building Step: " + _step.Name);
 
             //Check if platform is different
             if (_extra != null && _extra.mainBuild)
