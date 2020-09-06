@@ -481,7 +481,7 @@ namespace Falcone.BuildTool
 
             if(BuildScriptUtilities.terminal)
             {
-                Console.WriteLine(_step);
+                //Console.WriteLine(_step);
             }
 
             if(onStep != null) onStep();
