@@ -101,20 +101,20 @@ namespace Falcone.BuildTool
             }
         }
 
-        private static void DirectoryCopy(string sourceDirName, 
-                                          string destDirName, 
-                                          bool copySubDirs)
+        private void DirectoryCopy(string sourceDirName, 
+                                    string destDirName, 
+                                    bool copySubDirs)
         {
-            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
-            DirectoryInfo[] dirs = dir.GetDirectories();
 
             // If the source directory does not exist, throw an exception.
-            if (!dir.Exists)
+            if (!Directory.Exists(sourceDirName))
             {
-                throw new DirectoryNotFoundException(
-                    "Source directory does not exist or could not be found: "
-                    + sourceDirName);
+                this.lastError = "Source directory does not exist or could not be found: " + sourceDirName;
+                return;
             }
+
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+            DirectoryInfo[] dirs = dir.GetDirectories();
 
             // If the destination directory does not exist, create it.
             if (!Directory.Exists(destDirName))
