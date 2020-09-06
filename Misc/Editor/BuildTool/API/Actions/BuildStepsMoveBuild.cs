@@ -84,13 +84,19 @@ namespace Falcone.BuildTool
             {
                 try
                 {
+                    if(!File.Exists(buildPath + "/" + filePath))
+                    {
+                        this.lastError = "Error on move file [" + buildPath + "/" + filePath + "] - File Not Found!";
+                        return;
+                    }
+
                     File.Copy(buildPath + "/" + filePath,
                               this.ParsedPath + "/" + filePath, 
                               false);
                 }
                 catch (IOException iox)
                 {
-                    this.lastError = "Error on move file ["+ buildPath + "/"+ filePath + "] " + iox.Message;
+                    this.lastError = "Error on move file ["+ buildPath + "/"+ filePath + "] - " + iox.Message;
                 }
             }
         }

@@ -76,37 +76,8 @@ MonoBehaviour:
     Option: -33
     overwritePath: 0
     path: 
-    overwriteScenes: 1
+    overwriteScenes: 0
     scenes:
     - {fileID: 102900000, guid: 9fc0d4010bbf28b4594072e72b8655ab, type: 3}
-    preBuildActions: []
-    postBuildActions: []
-  - Name: 'JULIO '
-    Labels: All iOS
-    defaultSettings: 0
-    zipBuild: 0
-    mainBuild: 0
-    overwriteStep: {fileID: 0}
-    Target: 9
-    Option: -33
-    overwritePath: 0
-    path: 
-    overwriteScenes: 0
-    scenes:
-    - {fileID: 102900000, guid: 5bf795eda64a6431fb19ea152d87fac5, type: 3}
-    preBuildActions: []
-    postBuildActions: []
-  - Name: Windows
-    Labels: All Win32
-    defaultSettings: 0
-    zipBuild: 0
-    mainBuild: 0
-    overwriteStep: {fileID: 0}
-    Target: 5
-    Option: -33
-    overwritePath: 0
-    path: 
-    overwriteScenes: 0
-    scenes: []
     preBuildActions: []
     postBuildActions: []
