@@ -13,10 +13,11 @@ namespace Falcone.BuildTool
         [Flags]
         public enum Type
         {
-            Default = 0,
-            Other = 2,
-            Sample = 4,
-            Editor = 8
+            None = 0,
+            Default = 2,
+            Other = 4,
+            Sample = 8,
+            Editor = 16
         }
 
         [System.Serializable]
