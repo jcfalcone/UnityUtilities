@@ -245,6 +245,7 @@ namespace Falcone.BuildTool
 
             ExtraSettings extra = new ExtraSettings();
             extra.noAlerts = true;
+            extra.mainBuild = false;
 
             string[] args = System.Environment.GetCommandLineArgs();
 
@@ -268,6 +269,10 @@ namespace Falcone.BuildTool
                 else if (args[i] == "-dev")
                 {
                     extra.forceDev = true;
+                }
+                else if (args[i] == "-main")
+                {
+                    extra.mainBuild = true;
                 }
                 else if (args[i] == "-sequence")
                 {
