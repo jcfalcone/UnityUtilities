@@ -65,7 +65,7 @@ namespace Falcone.BuildTool
 
             if (terminal)
             {
-                Console.WriteLine(_log);
+                //Console.WriteLine(_log);
             }
         }
 
@@ -75,7 +75,7 @@ namespace Falcone.BuildTool
 
             if (terminal)
             {
-                Console.WriteLine(_error);
+                //Console.WriteLine(_error);
             }
         }
         #endregion
