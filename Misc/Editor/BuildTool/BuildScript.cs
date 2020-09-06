@@ -538,13 +538,13 @@ namespace Falcone.BuildTool
             //Execute Pre Actions
             for (int count = 0; count < _settings.preBuildActions.Count; count++)
             {
-                SetStep("Building Step: Executing Generic post action " + _settings.preBuildActions[count].GetName());
+                SetStep("Building Step: Executing pre action " + _settings.preBuildActions[count].GetName());
 
                 if (!_settings.preBuildActions[count].Exec(_settings, null, _extra, null, null))
                 {
                     if (!string.IsNullOrEmpty(_settings.preBuildActions[count].GetError()))
                     {
-                        BuildScriptUtilities.LogError("ERROR: Post Step " + _settings.preBuildActions[count].GetName() +
+                        BuildScriptUtilities.LogError("ERROR: Pre Step " + _settings.preBuildActions[count].GetName() +
                                                       " returned a error - " + _settings.preBuildActions[count].GetError());
                     }
                 }
@@ -571,7 +571,7 @@ namespace Falcone.BuildTool
             //Execute Post Actions
             for (int count = 0; count < _settings.postBuildActions.Count; count++)
             {
-                SetStep("Building Step: Executing Generic post action " + _settings.postBuildActions[count].GetName());
+                SetStep("Building Step: Executing post action " + _settings.postBuildActions[count].GetName());
 
                 if (!_settings.postBuildActions[count].Exec(_settings, null, _extra, null, null))
                 {
@@ -598,7 +598,6 @@ namespace Falcone.BuildTool
 
         static void BuildStep(BuildEditorSettings _settings, BuildEditorSettings.Step _step, ExtraSettings _extra = null)
         {
-            SetStep("Building Step: " + _step.Target);
 
             AddToDictionary("Short_Target", BuildScriptUtilities.GetShortTargetName(_step.Target));
             AddToDictionary("Long_Target", _step.Target.ToString());
@@ -666,6 +665,8 @@ namespace Falcone.BuildTool
                     }
                 }
             }
+
+            SetStep("Building Step: " + _step.Target);
 
             //Check if platform is different
             if (_extra != null && _extra.mainBuild)
