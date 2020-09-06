@@ -673,6 +673,7 @@ namespace Falcone.BuildTool
             {
                 if (!_step.mainBuild)
                 {
+                    BuildScriptUtilities.Log("Skipping " + _step.Name + " : Not a Main Build");
                     return;
                 }
             }
