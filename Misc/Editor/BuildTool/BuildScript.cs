@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Collections.Generic;
 using System.Text;
+using UnityEditor.PackageManager;
 
 namespace Falcone.BuildTool
 {
@@ -226,6 +227,8 @@ namespace Falcone.BuildTool
                     }
                 }
 
+                BuildScriptUtilities.Log("Loading "+_setting.name+" file...");
+
                 //_setting = settings[0];
             }
 
@@ -257,7 +260,7 @@ namespace Falcone.BuildTool
 
                     if (extra.targets.Count == 0)
                     {
-                        Console.WriteLine("ERROR: no valid targets found!");
+                        BuildScriptUtilities.LogError("ERROR: no valid targets found!");
                         return;
                     }
                 }
@@ -289,7 +292,7 @@ namespace Falcone.BuildTool
 
                     if (extra.tags.Count == 0)
                     {
-                        Console.WriteLine("ERROR: no valid tags found!");
+                        BuildScriptUtilities.LogError("ERROR: no valid tags found!");
                         return;
                     }
                 }
