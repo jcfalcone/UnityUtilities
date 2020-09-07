@@ -671,8 +671,6 @@ namespace Falcone.BuildTool
                 }
             }
 
-            SetStep("Building Step: " + _step.Name);
-
             //Check if platform is different
             if (_extra != null && _extra.mainBuild)
             {
@@ -697,14 +695,14 @@ namespace Falcone.BuildTool
                 }
             }
 
-            //Switching platforms
-            SetStep("Building Step: " + _step.Name + " - Switching Platform to "+ _step.Target);
-
             if(!IsPlatformSupported(_step.Target))
             {
                 BuildScriptUtilities.Log("Platform "+ _step.Target + " not supported, please download the Unity Module");
                 return;
             }
+
+            //Switching platforms
+            SetStep("Building Step: " + _step.Name + " - Switching Platform to " + _step.Target);
 
 
             bool switchResult = EditorUserBuildSettings.SwitchActiveBuildTarget(BuildScriptUtilities.GetTargetGroup(_step.Target), _step.Target);
