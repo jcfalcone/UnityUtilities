@@ -777,6 +777,10 @@ namespace Falcone.BuildTool
 
                 return;
             }
+            else
+            {
+                BuildScriptUtilities.LogError("Build Completed with Success!");
+            }
 
             if (_step.zipBuild)
             {
