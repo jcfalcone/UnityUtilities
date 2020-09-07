@@ -139,8 +139,11 @@ namespace Falcone.BuildTool
                 // Create the path to the new copy of the file.
                 string temppath = Path.Combine(destDirName, file.Name);
 
-                // Copy the file.
-                file.CopyTo(temppath, false);
+                if (!File.Exists(temppath))
+                {
+                    // Copy the file.
+                    file.CopyTo(temppath, false);
+                }
             }
 
             // If copySubDirs is true, copy the subdirectories.
