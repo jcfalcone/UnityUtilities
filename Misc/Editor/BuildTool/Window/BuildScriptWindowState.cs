@@ -136,6 +136,7 @@ namespace Falcone.BuildTool
         {
             Debug.Log("Tick " + _state);
 
+
             switch (_state)
             {
                 case States.Welcome:
@@ -612,7 +613,10 @@ namespace Falcone.BuildTool
 
                     if (GUILayout.Button("Build", _settings.style.WelcomeButtons))
                     {
-                        _editor.nextState = States.Welcome;
+                        var extraSettings = BuildScript.ExtraSettings.Default();
+                        extraSettings.mainBuild = false;
+
+                        BuildScript.BuildAll(_build, extraSettings, count);
                     }
 
                     GUILayout.EndHorizontal();
