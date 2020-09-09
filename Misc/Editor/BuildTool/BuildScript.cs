@@ -539,6 +539,7 @@ namespace Falcone.BuildTool
             {
                 if (_extra.forceSequence != -1)
                 {
+                    BuildScriptUtilities.Log("Building Step: Forcing Sequence to "+ _extra.forceSequence);
                     tempSequence = _extra.forceSequence;
                 }
             }
