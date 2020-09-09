@@ -410,6 +410,7 @@ namespace Falcone.BuildTool
                     File.Delete(_path + _file);
                 }
 
+                BuildScriptUtilities.Log("Building Step: Zipping path " + _build +" to "+ _path + _file);
                 System.IO.Compression.ZipFile.CreateFromDirectory(_build, _path + _file);
             #else
                 BuildScriptUtilities.LogError("Zip settings not enabled!");
