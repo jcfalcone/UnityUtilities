@@ -404,6 +404,12 @@ namespace Falcone.BuildTool
         public static void ZipBuild(string _build, string _path, string _file)
         {
             #if _BUILDSTEPS_ZIP_FILE_
+                if(File.Exists(_path + _file))
+                {
+                    BuildScriptUtilities.LogError("Zip found at destine, overwriting...");
+                    File.Delete(_path + _file);
+                }
+
                 System.IO.Compression.ZipFile.CreateFromDirectory(_build, _path + _file);
             #else
                 BuildScriptUtilities.LogError("Zip settings not enabled!");
