@@ -612,6 +612,7 @@ namespace Falcone.BuildTool
 
         static void BuildStep(BuildEditorSettings _settings, BuildEditorSettings.Step _step, ExtraSettings _extra = null)
         {
+            _step.wasBuild = false;
 
             AddToDictionary("Short_Target", BuildScriptUtilities.GetShortTargetName(_step.Target));
             AddToDictionary("Long_Target", _step.Target.ToString());
@@ -788,6 +789,7 @@ namespace Falcone.BuildTool
             }
             else
             {
+                _step.wasBuild = true;
                 BuildScriptUtilities.LogError("Build Completed with Success!");
             }
 

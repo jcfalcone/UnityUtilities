@@ -54,6 +54,12 @@ namespace Falcone.BuildTool
                        string _path,
                        string _file)
         {
+
+            if(!_step.wasBuild)
+            {
+                return true;
+            }
+
             string buildPath = _path;
             string filePath = string.Empty;
 
@@ -82,10 +88,13 @@ namespace Falcone.BuildTool
                 Directory.SetCurrentDirectory(buildPath);
                 string parentFolder = Directory.GetCurrentDirectory();
                 filePath = parentFolder + ".zip";
+
+                BuildScriptUtilities.Log("Moving ZIP file "+ filePath);
             }
 
             if(string.IsNullOrEmpty(filePath))
             {
+                BuildScriptUtilities.Log("Moving folder [" + buildPath + "] to [" + this.ParsedPath + "]");
                 return DirectoryCopy(buildPath,
                                      this.ParsedPath,
                                      true);
@@ -99,7 +108,9 @@ namespace Falcone.BuildTool
                         this.lastError = "Error on move file [" + buildPath + "/" + filePath + "] - File Not Found!";
                         return false;
                     }
-                      
+
+                    BuildScriptUtilities.Log("Moving file [" + buildPath + "/" + filePath +"] to ["+ this.ParsedPath + "/" + filePath+"]");
+
                     File.Copy(buildPath + "/" + filePath,
                               this.ParsedPath + "/" + filePath, 
                               false);

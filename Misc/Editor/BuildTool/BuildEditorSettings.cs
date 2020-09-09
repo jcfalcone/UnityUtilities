@@ -26,6 +26,7 @@ namespace Falcone.BuildTool
             public string Name;
             public string Labels;
             public bool defaultSettings;
+            public bool wasBuild;
 
             [Space]
             public bool zipBuild;
