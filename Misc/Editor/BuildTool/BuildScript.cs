@@ -403,8 +403,10 @@ namespace Falcone.BuildTool
 
         public static void ZipBuild(string _build, string _path, string _file)
         {
-            #if _ZIP_FILE_
+            #if _BUILDSTEPS_ZIP_FILE_
                 System.IO.Compression.ZipFile.CreateFromDirectory(_build, _path + _file);
+            #else
+                BuildScriptUtilities.LogError("Zip settings not enabled!");
             #endif
         }
 		
@@ -444,10 +446,17 @@ namespace Falcone.BuildTool
                 writer.Close();
             }
 
-            Debug.Log("Creating tags and variables...");
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, "_ZIP_FILE_");
 
-            Debug.Log("Generation Complete.");
+            string symbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+
+            if (!symbols.Contains("_BUILDSTEPS_ZIP_FILE_"))
+            {
+                Debug.Log("Creating tags and variables...");
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, symbols+ ";_BUILDSTEPS_ZIP_FILE_");
+            }
+
+
+            EditorUtility.DisplayDialog("Settings Created", "Setting files and symbols created", "OK");
         }
 
         static void CalcBuildProgress(BuildEditorSettings _settings)
@@ -545,7 +554,7 @@ namespace Falcone.BuildTool
             {
                 SetStep("Building Step: Executing pre action " + _settings.preBuildActions[count].GetName());
 
-                if (!_settings.preBuildActions[count].Exec(_settings, null, _extra, null, null))
+                if (!_settings.preBuildActions[count].Exec(_settings, null, _extra, null, null) || !string.IsNullOrEmpty(_settings.preBuildActions[count].GetError()))
                 {
                     if (!string.IsNullOrEmpty(_settings.preBuildActions[count].GetError()))
                     {
@@ -578,7 +587,7 @@ namespace Falcone.BuildTool
             {
                 SetStep("Building Step: Executing post action " + _settings.postBuildActions[count].GetName());
 
-                if (!_settings.postBuildActions[count].Exec(_settings, null, _extra, null, null))
+                if (!_settings.postBuildActions[count].Exec(_settings, null, _extra, null, null) || !string.IsNullOrEmpty(_settings.postBuildActions[count].GetError()))
                 {
                     if (!string.IsNullOrEmpty(_settings.postBuildActions[count].GetError()))
                     {
@@ -735,7 +744,7 @@ namespace Falcone.BuildTool
             {
                 SetStep("Building Step: " + _step.Name + " - Executing pre action "+ _step.preBuildActions[count].name);
 
-                if (!_step.preBuildActions[count].Exec(_settings, _step, _extra, buildPath, filePath))
+                if (!_step.preBuildActions[count].Exec(_settings, _step, _extra, buildPath, filePath) || !string.IsNullOrEmpty(_step.preBuildActions[count].GetError()))
                 {
                     if (!string.IsNullOrEmpty(_step.postBuildActions[count].GetError()))
                     {
@@ -795,7 +804,7 @@ namespace Falcone.BuildTool
             {
                 SetStep("Building Step: " + _step.Name + " - Executing post action " + _step.postBuildActions[count].GetName());
 
-                if (!_step.postBuildActions[count].Exec(_settings, _step, _extra, buildPath, filePath))
+                if (!_step.postBuildActions[count].Exec(_settings, _step, _extra, buildPath, filePath) || !string.IsNullOrEmpty(_step.postBuildActions[count].GetError()))
                 {
                     if (!string.IsNullOrEmpty(_step.postBuildActions[count].GetError()))
                     {

@@ -32,22 +32,24 @@ namespace Falcone.BuildTool
                 return false;*/
             }
 
+            bool finalResult = true;
+
             if (_step == null)
             {
                 for(int count = 0; count < _settings.Steps.Count; count++)
                 {
-                    this.MoveBuild(_settings, _settings.Steps[count], _path, _file);
+                    finalResult = finalResult && this.MoveBuild(_settings, _settings.Steps[count], _path, _file);
                 }
             }
             else
             {
-                this.MoveBuild(_settings, _step, _path, _file);
+                finalResult = finalResult && this.MoveBuild(_settings, _step, _path, _file);
             }
 
-            return true;
+            return finalResult;
         }
 
-        void MoveBuild(BuildEditorSettings _settings,
+        bool MoveBuild(BuildEditorSettings _settings,
                        BuildEditorSettings.Step _step,
                        string _path,
                        string _file)
@@ -74,7 +76,7 @@ namespace Falcone.BuildTool
                 if (!Directory.Exists(buildPath))
                 {
                     this.lastError = "Source directory does not exist or could not be found: " + buildPath;
-                    return;
+                    return false;
                 }
 
                 Directory.SetCurrentDirectory(buildPath);
@@ -84,9 +86,9 @@ namespace Falcone.BuildTool
 
             if(string.IsNullOrEmpty(filePath))
             {
-                DirectoryCopy(buildPath,
-                              this.ParsedPath,
-                              true);
+                return DirectoryCopy(buildPath,
+                                     this.ParsedPath,
+                                     true);
             }
             else
             {
@@ -95,9 +97,9 @@ namespace Falcone.BuildTool
                     if(!File.Exists(buildPath + "/" + filePath))
                     {
                         this.lastError = "Error on move file [" + buildPath + "/" + filePath + "] - File Not Found!";
-                        return;
+                        return false;
                     }
-
+                      
                     File.Copy(buildPath + "/" + filePath,
                               this.ParsedPath + "/" + filePath, 
                               false);
@@ -105,20 +107,23 @@ namespace Falcone.BuildTool
                 catch (IOException iox)
                 {
                     this.lastError = "Error on move file ["+ buildPath + "/"+ filePath + "] - " + iox.Message;
+                    return false;
                 }
             }
+
+            return true;
         }
 
-        private void DirectoryCopy(string sourceDirName, 
-                                    string destDirName, 
-                                    bool copySubDirs)
+        private bool DirectoryCopy(string sourceDirName, 
+                                   string destDirName, 
+                                   bool copySubDirs)
         {
 
             // If the source directory does not exist, throw an exception.
             if (!Directory.Exists(sourceDirName))
             {
                 this.lastError = "Source directory does not exist or could not be found: " + sourceDirName;
-                return;
+                return false;
             }
 
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);
@@ -159,6 +164,8 @@ namespace Falcone.BuildTool
                     DirectoryCopy(subdir.FullName, temppath, copySubDirs);
                 }
             }
+
+            return true;
         }
     }
 }
