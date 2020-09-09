@@ -630,13 +630,6 @@ namespace Falcone.BuildTool
                 return;
             }
 
-            if ((_step.Option & BuildOptions.AcceptExternalModificationsToPlayer) != BuildOptions.AcceptExternalModificationsToPlayer && 
-                (File.Exists(buildPath + "/" + filePath) || Directory.Exists(buildPath + "/" + filePath)))
-            {
-                BuildScriptUtilities.LogError("Another Build found at "+ buildPath + "/" + filePath);
-                return;
-            }
-
             //Filter by tag and platform
             if (_extra != null)
             {
@@ -669,6 +662,13 @@ namespace Falcone.BuildTool
                         return;
                     }
                 }
+            }
+
+            if ((_step.Option & BuildOptions.AcceptExternalModificationsToPlayer) != BuildOptions.AcceptExternalModificationsToPlayer &&
+                (File.Exists(buildPath + "/" + filePath) || Directory.Exists(buildPath + "/" + filePath)))
+            {
+                BuildScriptUtilities.LogError("Another Build found at " + buildPath + "/" + filePath);
+                return;
             }
 
             //Check if platform is different
