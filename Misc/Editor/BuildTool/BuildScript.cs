@@ -803,8 +803,8 @@ namespace Falcone.BuildTool
             {
                 SetStep("Building Step: " + _step.Name + " - Zipping Project");
 
-                string parentFolder = System.IO.Directory.GetParent(buildPath).ToString();
-                ZipBuild(buildPath, parentFolder+".zip", "");
+                string parentFolder = System.IO.Directory.GetParent(buildPath + "/" + filePath).ToString();
+                ZipBuild(buildPath + "/" + filePath, parentFolder+".zip", "");
             }
 
             //Execute Post Actions
