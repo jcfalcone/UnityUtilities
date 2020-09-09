@@ -17,7 +17,7 @@ MonoBehaviour:
   Version: '{Date.Year}.{Date.Month}.{Date.Day}.{Sequence}'
   type: 8
   Path: '{Build_Folder}/{Short_Target}/{Date.Path}'
-  File: '{Product_Name}{Extension}'
+  File: Build_{Product_Name}_{Sequence}{Extension}
   preBuildActions: []
   postBuildActions:
   - {fileID: 11400000, guid: 73b6dc535a134a947ab74c1287728570, type: 2}
