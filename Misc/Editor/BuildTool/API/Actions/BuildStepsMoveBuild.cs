@@ -92,8 +92,8 @@ namespace Falcone.BuildTool
                 }
 
                 //Directory.SetCurrentDirectory(buildPath);
-                string parentFolder = System.IO.Directory.GetParent(buildPath).ToString();
-                filePath = parentFolder + ".zip";
+                //string parentFolder = System.IO.Directory.GetParent(buildPath).ToString();
+                filePath = buildPath + ".zip";
 
                 BuildScriptUtilities.Log("Moving ZIP file "+ filePath);
             }
@@ -111,11 +111,11 @@ namespace Falcone.BuildTool
                 {
                     if(!File.Exists(filePath))
                     {
-                        this.lastError = "Error on move file [" + buildPath + "/" + filePath + "] - File Not Found!";
+                        this.lastError = "Error on move file [" + filePath + "] - File Not Found!";
                         return false;
                     }
 
-                    BuildScriptUtilities.Log("Moving file [" + buildPath + "/" + filePath +"] to ["+ this.ParsedPath + "/" + filePath+"]");
+                    BuildScriptUtilities.Log("Moving file [" + filePath +"] to ["+ this.ParsedPath + "/" + Path.GetFileName(filePath) + "]");
 
                     File.Copy(filePath,
                               this.ParsedPath + "/" + Path.GetFileName(filePath),
@@ -123,7 +123,7 @@ namespace Falcone.BuildTool
                 }
                 catch (IOException iox)
                 {
-                    this.lastError = "Error on move file ["+ buildPath + "/"+ filePath + "] - " + iox.Message;
+                    this.lastError = "Error on move file ["+ filePath + "] - " + iox.Message;
                     return false;
                 }
             }
