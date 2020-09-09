@@ -16,7 +16,7 @@ MonoBehaviour:
   Sequence: 0
   Version: '{Date.Year}.{Date.Month}.{Date.Day}.{Sequence}'
   type: 8
-  Path: '{Build_Folder}/{Short_Target}/Build_{Date.Path.Date}_{Date.Path.Time}'
+  Path: '{Build_Folder}/{Short_Target}/Build_{Date.Path.Date}_{Date.Path.Time}_{Sequence}'
   File: '{Product_Name}_{Sequence}{Extension}'
   preBuildActions: []
   postBuildActions:
