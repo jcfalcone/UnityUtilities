@@ -26,14 +26,21 @@ namespace Falcone.BuildTool
                                   string _path,
                                   string _file)
         {
-
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = "git reset";
-            startInfo.Arguments = (this.type == Type.Hard)? "--hard HEAD^" : "--soft";
-            process.StartInfo = startInfo;
-            process.Start();
+            try
+            {
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = "git reset";
+                startInfo.Arguments = (this.type == Type.Hard)? "--hard HEAD^" : "--soft";
+                process.StartInfo = startInfo;
+                process.Start();
+            }
+            catch (System.Exception e)
+            {
+                this.lastError = "ERROR: Build Steps couldn't execute 'git reset', please check if your system has git installed - " + e.Message;
+                return false;
+            }
 
             return true;
         }
