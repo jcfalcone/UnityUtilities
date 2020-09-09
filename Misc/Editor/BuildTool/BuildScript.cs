@@ -526,14 +526,6 @@ namespace Falcone.BuildTool
 
                 tempSequence = _settings.Sequence;
 
-                if (_extra != null)
-                {
-                    if(_extra.forceSequence != -1)
-                    {
-                        tempSequence = _extra.forceSequence;
-                    }
-                }
-
                 AddToDictionary("Sequence", tempSequence.ToString());
 
                 string version = ParseString(_settings.Version);
@@ -541,6 +533,14 @@ namespace Falcone.BuildTool
                 AddToDictionary("Version", version);
 
                 PlayerSettings.bundleVersion = version;
+            }
+
+            if (_extra != null)
+            {
+                if (_extra.forceSequence != -1)
+                {
+                    tempSequence = _extra.forceSequence;
+                }
             }
 
             return true;
