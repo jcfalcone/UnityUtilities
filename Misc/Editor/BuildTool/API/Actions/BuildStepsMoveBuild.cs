@@ -55,9 +55,13 @@ namespace Falcone.BuildTool
                        string _file)
         {
 
-            if(!_step.wasBuild)
+            if (!_step.wasBuild)
             {
                 return true;
+            }
+            else
+            {
+                BuildScriptUtilities.Log("BUILD WAS MADE " + _step.Name);
             }
 
             string buildPath = _path;
