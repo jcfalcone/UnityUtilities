@@ -16,8 +16,8 @@ MonoBehaviour:
   Sequence: 0
   Version: '{Date.Year}.{Date.Month}.{Date.Day}.{Sequence}'
   type: 8
-  Path: '{Build_Folder}/{Short_Target}/{Date.Path}'
-  File: Build_{Product_Name}_{Sequence}{Extension}
+  Path: '{Build_Folder}/{Short_Target}/Build_{Date.Path.Date}_{Date.Path.Time}'
+  File: '{Product_Name}_{Sequence}{Extension}'
   preBuildActions: []
   postBuildActions:
   - {fileID: 11400000, guid: 73b6dc535a134a947ab74c1287728570, type: 2}
@@ -25,6 +25,7 @@ MonoBehaviour:
   - Name: Jenkins Android
     Labels: Jenkins Android
     defaultSettings: 0
+    wasBuild: 0
     zipBuild: 1
     mainBuild: 0
     overwriteStep: {fileID: 0}
@@ -40,6 +41,7 @@ MonoBehaviour:
   - Name: Jenkins IOS
     Labels: Jenkins iOS
     defaultSettings: 0
+    wasBuild: 0
     zipBuild: 1
     mainBuild: 0
     overwriteStep: {fileID: 0}
@@ -54,6 +56,7 @@ MonoBehaviour:
   - Name: Android
     Labels: All Android
     defaultSettings: 0
+    wasBuild: 0
     zipBuild: 0
     mainBuild: 1
     overwriteStep: {fileID: 0}
@@ -69,6 +72,7 @@ MonoBehaviour:
   - Name: IOS
     Labels: All iOS
     defaultSettings: 0
+    wasBuild: 0
     zipBuild: 0
     mainBuild: 1
     overwriteStep: {fileID: 0}
