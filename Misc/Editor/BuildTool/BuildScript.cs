@@ -278,15 +278,10 @@ namespace Falcone.BuildTool
                 {
                     int newSequence = -1;
 
-                    BuildScriptUtilities.LogError("PT1: Proxima sequence is ["+ args[i + 1]+"]");
-
-
                     if (int.TryParse(args[++i], out newSequence))
                     {
                         extra.forceSequence = newSequence;
                     }
-
-                    BuildScriptUtilities.LogError("PT2: Proxima sequence is [" + newSequence +"] - ["+ extra.forceSequence+"]");
                 }
                 else if (args[i] == "-terminal")
                 {
@@ -559,7 +554,7 @@ namespace Falcone.BuildTool
             BuildTarget projectTarget           = EditorUserBuildSettings.activeBuildTarget;
             BuildTargetGroup projectTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
 
-            PreBuild(_settings);
+            PreBuild(_settings, _extra);
 
             //Execute Pre Actions
             for (int count = 0; count < _settings.preBuildActions.Count; count++)
