@@ -414,7 +414,7 @@ namespace Falcone.BuildTool
 
                 if(!File.GetAttributes(_build).HasFlag(FileAttributes.Directory))
                 {
-                    pathToZip = Path.GetFullPath(_build);
+                    pathToZip = new FileInfo(_build).Directory.FullName;
                 }
 
                 BuildScriptUtilities.Log("Building Step: Zipping path " + pathToZip + " to "+ _path + _file+" - "+ File.GetAttributes(_build).HasFlag(FileAttributes.Directory));
