@@ -109,7 +109,7 @@ namespace Falcone.BuildTool
             {
                 try
                 {
-                    if(!File.Exists(buildPath + "/" + filePath))
+                    if(!File.Exists(filePath))
                     {
                         this.lastError = "Error on move file [" + buildPath + "/" + filePath + "] - File Not Found!";
                         return false;
@@ -117,9 +117,9 @@ namespace Falcone.BuildTool
 
                     BuildScriptUtilities.Log("Moving file [" + buildPath + "/" + filePath +"] to ["+ this.ParsedPath + "/" + filePath+"]");
 
-                    File.Copy(buildPath + "/" + filePath,
-                              this.ParsedPath + "/" + filePath, 
-                              false);
+                    File.Copy(filePath,
+                              this.ParsedPath + "/" + Path.GetFileName(filePath),
+                              false); ;
                 }
                 catch (IOException iox)
                 {
