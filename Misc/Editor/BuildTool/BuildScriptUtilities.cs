@@ -162,6 +162,8 @@ namespace Falcone.BuildTool
                 case BuildTarget.StandaloneWindows:
                 case BuildTarget.StandaloneWindows64:
                     return ".exe";
+                case BuildTarget.Android:
+                    return ".apk";
             }
 
             return "";
