@@ -278,10 +278,15 @@ namespace Falcone.BuildTool
                 {
                     int newSequence = -1;
 
-                    if(int.TryParse(args[++i], out newSequence))
+                    BuildScriptUtilities.LogError("PT1: Proxima sequence is "+ args[i + 1]);
+
+
+                    if (int.TryParse(args[++i], out newSequence))
                     {
                         extra.forceSequence = newSequence;
                     }
+
+                    BuildScriptUtilities.LogError("PT2: Proxima sequence is " + args[i + 1]);
                 }
                 else if (args[i] == "-terminal")
                 {
