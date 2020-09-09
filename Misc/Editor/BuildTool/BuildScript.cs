@@ -620,9 +620,7 @@ namespace Falcone.BuildTool
         {
             _step.wasBuild = false;
 
-            AddToDictionary("Short_Target", BuildScriptUtilities.GetShortTargetName(_step.Target));
-            AddToDictionary("Long_Target", _step.Target.ToString());
-            AddToDictionary("Extension", BuildScriptUtilities.GetTargetExtension(_step.Target));
+            SetDictionaryToStep(_step);
 
             string buildPath = ParseString(_settings.Path);
             string filePath = ParseString(_settings.File);
@@ -821,6 +819,13 @@ namespace Falcone.BuildTool
                     }
                 }
             }
+        }
+
+        public static void SetDictionaryToStep(BuildEditorSettings.Step _step)
+        {
+            AddToDictionary("Short_Target", BuildScriptUtilities.GetShortTargetName(_step.Target));
+            AddToDictionary("Long_Target", _step.Target.ToString());
+            AddToDictionary("Extension", BuildScriptUtilities.GetTargetExtension(_step.Target));
         }
 
         static bool IsPlatformSupported(BuildTarget _target)

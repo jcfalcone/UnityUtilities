@@ -38,11 +38,13 @@ namespace Falcone.BuildTool
             {
                 for(int count = 0; count < _settings.Steps.Count; count++)
                 {
+                    BuildScript.SetDictionaryToStep(_settings.Steps[count]);
                     finalResult = finalResult && this.MoveBuild(_settings, _settings.Steps[count], _path, _file);
                 }
             }
             else
             {
+                BuildScript.SetDictionaryToStep(_step);
                 finalResult = finalResult && this.MoveBuild(_settings, _step, _path, _file);
             }
 
