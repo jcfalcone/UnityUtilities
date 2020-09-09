@@ -91,8 +91,8 @@ namespace Falcone.BuildTool
                     return false;
                 }
 
-                Directory.SetCurrentDirectory(buildPath);
-                string parentFolder = Directory.GetCurrentDirectory();
+                //Directory.SetCurrentDirectory(buildPath);
+                string parentFolder = System.IO.Directory.GetParent(buildPath).ToString();
                 filePath = parentFolder + ".zip";
 
                 BuildScriptUtilities.Log("Moving ZIP file "+ filePath);
