@@ -19,8 +19,7 @@ MonoBehaviour:
   Path: '{Build_Folder}/{Short_Target}/Build_{Date.Path.Date}_{Date.Path.Time}_{Sequence}'
   File: '{Product_Name}_{Sequence}{Extension}'
   preBuildActions: []
-  postBuildActions:
-  - {fileID: 0}
+  postBuildActions: []
   Steps:
   - Name: Jenkins Android
     Labels: Jenkins Android
