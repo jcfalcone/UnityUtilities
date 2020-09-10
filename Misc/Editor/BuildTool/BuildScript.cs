@@ -575,6 +575,11 @@ namespace Falcone.BuildTool
             //Execute Pre Actions
             for (int count = 0; count < _settings.preBuildActions.Count; count++)
             {
+                if (_settings.preBuildActions[count] == null)
+                {
+                    continue;
+                }
+
                 SetStep("Building Step: Executing pre action " + _settings.preBuildActions[count].GetName());
 
                 if (!_settings.preBuildActions[count].Exec(_settings, null, _extra, null, null) || !string.IsNullOrEmpty(_settings.preBuildActions[count].GetError()))
@@ -608,6 +613,11 @@ namespace Falcone.BuildTool
             //Execute Post Actions
             for (int count = 0; count < _settings.postBuildActions.Count; count++)
             {
+                if(_settings.postBuildActions[count] == null)
+                {
+                    continue;
+                }
+
                 SetStep("Building Step: Executing post action " + _settings.postBuildActions[count].GetName());
 
                 if (!_settings.postBuildActions[count].Exec(_settings, null, _extra, null, null) || !string.IsNullOrEmpty(_settings.postBuildActions[count].GetError()))
@@ -764,6 +774,11 @@ namespace Falcone.BuildTool
             //Execute Pre Actions
             for (int count = 0; count < _step.preBuildActions.Count; count++)
             {
+                if (_step.preBuildActions[count] == null)
+                {
+                    continue;
+                }
+
                 SetStep("Building Step: " + _step.Name + " - Executing pre action "+ _step.preBuildActions[count].name);
 
                 if (!_step.preBuildActions[count].Exec(_settings, _step, _extra, buildPath, filePath) || !string.IsNullOrEmpty(_step.preBuildActions[count].GetError()))
@@ -825,6 +840,11 @@ namespace Falcone.BuildTool
             //Execute Post Actions
             for (int count = 0; count < _step.postBuildActions.Count; count++)
             {
+                if (_step.postBuildActions[count] == null)
+                {
+                    continue;
+                }
+
                 SetStep("Building Step: " + _step.Name + " - Executing post action " + _step.postBuildActions[count].GetName());
 
                 if (!_step.postBuildActions[count].Exec(_settings, _step, _extra, buildPath, filePath) || !string.IsNullOrEmpty(_step.postBuildActions[count].GetError()))
