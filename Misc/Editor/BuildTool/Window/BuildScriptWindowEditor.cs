@@ -117,6 +117,16 @@ namespace Falcone.BuildTool
                     this.SetLocalSetting();
                 }
             }
+            else if(currSettings == null)
+            {
+                BuildEditorSettings otherDefault = BuildScriptUtilities.GetBuildSettingByType(BuildEditorSettings.Type.Default);
+
+                if (otherDefault != null)
+                {
+                    staticSettings = otherDefault;
+                    this.SetLocalSetting();
+                }
+            }
 
             EditorGUILayout.BeginFadeGroup(this.currFadeVal);
 

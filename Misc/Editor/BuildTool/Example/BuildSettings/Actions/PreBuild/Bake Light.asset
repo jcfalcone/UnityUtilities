@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0831c56c1f4a3f4a9be69437d7a6a7d, type: 3}
-  m_Name: Move Build
+  m_Script: {fileID: 11500000, guid: 47e739541047cef4c8a74e2dea280819, type: 3}
+  m_Name: Bake Light
   m_EditorClassIdentifier: 
-  TargetPath: '{Root_Folder}/Final/'
+  customScenes: []

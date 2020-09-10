@@ -190,5 +190,65 @@ namespace Falcone.BuildTool
             return targets;
         }
         #endregion
+
+        #region Settings Files
+        public static BuildEditorSettings GetBuildSetting()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:BuildEditorSettings");
+            BuildEditorSettings setting = null;
+
+            if (guids.Length == 0)
+            {
+                return null;
+            }
+
+            for (int count = 0; count < guids.Length; count++)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[count]);
+
+                BuildEditorSettings settings = AssetDatabase.LoadAssetAtPath<BuildEditorSettings>(path);
+
+                if (settings != null && settings.type != BuildEditorSettings.Type.Editor
+                                    && settings.type != BuildEditorSettings.Type.None)
+                {
+                    if (setting == null || (int)settings.type < (int)setting.type)
+                    {
+                        setting = settings;
+                    }
+
+                    if (setting.type == BuildEditorSettings.Type.Default)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return setting;
+        }
+
+        public static BuildEditorSettings GetBuildSettingByType(BuildEditorSettings.Type _type)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:BuildEditorSettings");
+
+            if (guids.Length == 0)
+            {
+                return null;
+            }
+
+            for (int count = 0; count < guids.Length; count++)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[count]);
+
+                BuildEditorSettings settings = AssetDatabase.LoadAssetAtPath<BuildEditorSettings>(path);
+
+                if (settings.type == _type)
+                {
+                    return settings;
+                }
+            }
+
+            return null;
+        }
+        #endregion
     }
 }

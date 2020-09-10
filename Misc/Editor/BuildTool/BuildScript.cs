@@ -199,33 +199,12 @@ namespace Falcone.BuildTool
         {
             if (_setting == null)
             {
-                string[] guids = AssetDatabase.FindAssets("t:BuildEditorSettings");
+                _setting = BuildScriptUtilities.GetBuildSetting();
 
-                if (guids.Length == 0)
+                if (_setting == null)
                 {
                     BuildScriptUtilities.LogError("No build setting found!");
                     return;
-                }
-
-                for (int count = 0; count < guids.Length; count++)
-                {
-                    string path = AssetDatabase.GUIDToAssetPath(guids[count]);
-
-                    BuildEditorSettings settings = AssetDatabase.LoadAssetAtPath<BuildEditorSettings>(path);
-
-                    if(settings != null && settings.type != BuildEditorSettings.Type.Editor
-                                        && settings.type != BuildEditorSettings.Type.None)
-                    {
-                        if (_setting == null || (int)settings.type < (int)_setting.type)
-                        {
-                            _setting = settings;
-                        }
-
-                        if (_setting.type == BuildEditorSettings.Type.Default)
-                        {
-                            break;
-                        }
-                    }
                 }
 
                 BuildScriptUtilities.Log("Loading "+_setting.name+" file...");
@@ -312,6 +291,11 @@ namespace Falcone.BuildTool
         #region Functions
         public static string ParseString(string _base)
         {
+            if(string.IsNullOrEmpty(_base))
+            {
+                return _base;
+            }
+
             foreach (var key in dictionary)
             {
                 _base = _base.Replace(key.Key, key.Value);
@@ -424,7 +408,15 @@ namespace Falcone.BuildTool
             #endif
         }
 		
-		public static void GenerateFileForZip()
+        public static bool HasToGenerateSettings()
+        {
+            #if _BUILDSTEPS_ZIP_FILE_
+            return false;
+            #else
+            return true;
+            #endif
+        }
+        public static void GenerateFileForZip()
         {
             string path = Application.dataPath;
             string file = "/csc.rsp";

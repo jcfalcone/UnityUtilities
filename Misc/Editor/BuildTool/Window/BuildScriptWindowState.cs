@@ -226,6 +226,29 @@ namespace Falcone.BuildTool
 
             UIUtility.Space();
 
+            GUILayout.BeginVertical(_settings.style.WelcomeGroup);
+
+            UIUtility.BeginCenterGroup();
+            GUILayout.Label("Settings", EditorStyles.boldLabel);
+            UIUtility.EndCenterGroup();
+
+            EditorGUILayout.LabelField("General Settings for the tool");
+
+            EditorGUI.BeginDisabledGroup(!BuildScript.HasToGenerateSettings());
+
+            if (GUILayout.Button("Generate Config Files", _settings.style.WelcomeButtons))
+            {
+                BuildScript.GenerateFileForZip();
+
+                Debug.Log("Files Generated Successfully");
+            }
+
+            EditorGUI.EndDisabledGroup();
+
+            GUILayout.EndVertical();
+
+            UIUtility.Space();
+
             if (_editor.position.width > 300)
             {
                 EditorGUILayout.BeginHorizontal();
@@ -293,13 +316,6 @@ namespace Falcone.BuildTool
             }
 
             GUILayout.EndVertical();
-			
-			if (GUILayout.Button("Generate Config Files", _settings.style.WelcomeButtons))
-            {
-                BuildScript.GenerateFileForZip();
-
-                Debug.Log("Files Generated Successfully");
-            }
         }
         #endregion
 
@@ -364,6 +380,12 @@ namespace Falcone.BuildTool
 
         public void ChangeSettings(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
         {
+            if(_build == null)
+            {
+                _editor.nextState = States.Welcome;
+                return;
+            }
+
             using (var check = new EditorGUI.ChangeCheckScope())
             {
 
@@ -378,6 +400,35 @@ namespace Falcone.BuildTool
                 UIUtility.Space();
 
                 this.scrollPosition = EditorGUILayout.BeginScrollView(this.scrollPosition, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, _settings.style.WelcomeGroup);
+
+                UIUtility.SubTitle("Settinds");
+
+                GUILayout.BeginHorizontal();
+
+                GUILayout.Label("Setting Type", GUILayout.MaxWidth(90));
+
+                GUILayout.Label(_build.type.ToString().ToUpper(), GUILayout.MaxWidth(90));
+
+                EditorGUI.BeginDisabledGroup(_build.type == BuildEditorSettings.Type.Default ||
+                                             _build.type == BuildEditorSettings.Type.Sample);
+
+                if (GUILayout.Button("Set as Default"))
+                {
+                    BuildEditorSettings other = BuildScriptUtilities.GetBuildSettingByType(BuildEditorSettings.Type.Default);
+
+                    if(other != null)
+                    {
+                        other.type = BuildEditorSettings.Type.Other;
+                    }
+
+                    _build.type = BuildEditorSettings.Type.Default;
+                }
+
+                EditorGUI.EndDisabledGroup();
+
+                GUILayout.EndHorizontal();
+
+                UIUtility.Space();
 
                 UIUtility.SubTitle("Version");
 
@@ -424,6 +475,8 @@ namespace Falcone.BuildTool
 
                 if(GUILayout.Button("...", GUILayout.MaxWidth(50)))
                 {
+                    GUI.FocusControl(null);
+
                     _build.Path = EditorUtility.SaveFolderPanel("Build End Path", _build.Path, "Build");
                 }
 
@@ -534,6 +587,8 @@ namespace Falcone.BuildTool
 
                         if (GUILayout.Button("...", GUILayout.MaxWidth(50)))
                         {
+                            GUI.FocusControl(null);
+
                             _build.Steps[count].path = EditorUtility.SaveFolderPanel("Overwrite End Path", _build.Steps[count].path, "Build");
                         }
 
@@ -609,6 +664,12 @@ namespace Falcone.BuildTool
                         {
                             _build.Steps.RemoveAt(count);
                         }
+                    }
+
+                    if (GUILayout.Button("Duplicate", _settings.style.WelcomeButtons))
+                    {
+                        _build.Steps.Add(new BuildEditorSettings.Step(_build.Steps[count]));
+                        return;
                     }
 
                     if (GUILayout.Button("Build", _settings.style.WelcomeButtons))
@@ -1158,7 +1219,8 @@ namespace Falcone.BuildTool
                 AssetDatabase.CreateAsset(script, this.saveTempFilePath);
                 AssetDatabase.SaveAssets();
 
-                script.type = BuildEditorSettings.Type.Other;
+                script.type = (BuildScriptUtilities.GetBuildSettingByType(BuildEditorSettings.Type.Default) != null) ? BuildEditorSettings.Type.Other :
+                                                                                                                       BuildEditorSettings.Type.Default;
 
                 _editor.currSettings = script;
 

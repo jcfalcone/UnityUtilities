@@ -70,7 +70,33 @@ namespace Falcone.BuildTool
                 this.scenes = new List<UnityEngine.Object>();
                 this.preBuildActions = new List<TemplateBuildAction>();
                 this.postBuildActions = new List<TemplateBuildAction>();
-        }
+            }
+
+            public Step(Step _other)
+            {
+                this.Name = _other.Name + " (COPY)";
+                this.Labels = _other.Labels;
+                this.defaultSettings = false;
+                this.wasBuild = false;
+
+                this.zipBuild = _other.zipBuild;
+                this.mainBuild = _other.mainBuild;
+
+                this.overwriteStep = _other.overwriteStep;
+
+                this.Target = _other.Target;
+                this.Option = _other.Option;
+
+                this.overwritePath = _other.overwritePath;
+
+                this.path = _other.path;
+
+                this.overwriteScenes = _other.overwriteScenes;
+                this.scenes = new List<UnityEngine.Object>(_other.scenes);
+
+                this.preBuildActions = new List<TemplateBuildAction>(_other.preBuildActions);
+                this.postBuildActions = new List<TemplateBuildAction>(_other.postBuildActions);
+            }
 
             public static BuildPlayerOptions GetBuildOptions()
             {
@@ -125,10 +151,19 @@ namespace Falcone.BuildTool
                     this.Steps[count].Labels = this.Steps[count].Labels.Replace(targets[countT], "");
                 }
 
+                this.Steps[count].Labels = this.Steps[count].Labels.Replace("Unknow", "");
+
                 this.Steps[count].Labels = this.Steps[count].Labels.Replace("  ", "");
                 this.Steps[count].Labels = this.Steps[count].Labels.Trim();
 
-                this.Steps[count].Labels += ((this.Steps[count].Labels.Length > 0)? " " : "") + BuildScriptUtilities.GetShortTargetName(this.Steps[count].Target);
+                string target = BuildScriptUtilities.GetShortTargetName(this.Steps[count].Target);
+
+                if (target == "Unknow")
+                {
+                    continue;
+                }
+
+                this.Steps[count].Labels += ((this.Steps[count].Labels.Length > 0)? " " : "") + target;
             }
         }
 

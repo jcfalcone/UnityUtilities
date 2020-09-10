@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 53a0e486d7e49c14da10269ea7de6315, type: 3}
-  m_Name: BuildSettings
+  m_Name: AndroidBuild
   m_EditorClassIdentifier: 
   controlVersion: 1
   Sequence: 0
@@ -20,7 +20,7 @@ MonoBehaviour:
   File: '{Product_Name}_{Sequence}{Extension}'
   preBuildActions: []
   postBuildActions:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 73b6dc535a134a947ab74c1287728570, type: 2}
   Steps:
   - Name: Jenkins Android
     Labels: Jenkins Android
@@ -30,7 +30,7 @@ MonoBehaviour:
     mainBuild: 0
     overwriteStep: {fileID: 0}
     Target: 13
-    Option: -385081213
+    Option: -921952125
     overwritePath: 0
     path: 
     overwriteScenes: 0
