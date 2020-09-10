@@ -15,11 +15,12 @@ MonoBehaviour:
   controlVersion: 1
   Sequence: 0
   Version: '{Date.Year}.{Date.Month}.{Date.Day}.{Sequence}'
-  type: 8
+  type: 2
   Path: '{Build_Folder}/{Short_Target}/Build_{Date.Path.Date}_{Date.Path.Time}_{Sequence}'
   File: '{Product_Name}_{Sequence}{Extension}'
   preBuildActions: []
-  postBuildActions: []
+  postBuildActions:
+  - {fileID: 11400000, guid: f13097a0a86fdc94c8e45d2e7ab54702, type: 2}
   Steps:
   - Name: Jenkins Android
     Labels: Jenkins Android
