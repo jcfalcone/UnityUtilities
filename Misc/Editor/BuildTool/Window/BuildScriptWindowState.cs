@@ -388,7 +388,7 @@ namespace Falcone.BuildTool
                 return;
             }
 
-           if(this.prevEditBuild != _build)
+           if(this.prevEditBuild != _build && this.StepsLists != null)
             {
                 this.StepsLists.Clear();
             }
