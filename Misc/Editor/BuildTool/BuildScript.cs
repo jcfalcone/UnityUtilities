@@ -283,6 +283,7 @@ namespace Falcone.BuildTool
                 }
             }
 
+            AssetDatabase.Refresh();
             BuildAll(null, extra);
         }
         #endregion
