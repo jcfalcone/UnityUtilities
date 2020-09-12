@@ -194,6 +194,7 @@ namespace Falcone.BuildTool
         #region Settings Files
         public static BuildEditorSettings GetBuildSetting()
         {
+            string[] guidsActions = AssetDatabase.FindAssets("t:TemplateBuildAction");
             string[] guids = AssetDatabase.FindAssets("t:BuildEditorSettings");
             BuildEditorSettings setting = null;
 
