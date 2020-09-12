@@ -31,8 +31,9 @@ namespace Falcone.BuildTool
             public string Folder;
             public BuildEditorSettings BuildSetting;
             public TemplateBuildAction Script;
-            public BuildEditorSettings.Step Step;
+            public BuildEditorSettings.Step Step => (this.StepIndex >= 0) ? BuildSetting.Steps[this.StepIndex] : null;
             public List<TemplateBuildAction> List;
+            public int StepIndex = -1;
 
             public MenuOption(string _Folder, BuildEditorSettings _build, TemplateBuildAction _Script, List<TemplateBuildAction> _list)
             {
@@ -42,12 +43,12 @@ namespace Falcone.BuildTool
                 List = _list;
             }
 
-            public MenuOption(string _Folder, BuildEditorSettings _build, TemplateBuildAction _Script, BuildEditorSettings.Step _step)
+            public MenuOption(string _Folder, BuildEditorSettings _build, TemplateBuildAction _Script, int _step)
             {
                 Folder = _Folder;
                 BuildSetting = _build;
                 Script = _Script;
-                Step = _step;
+                StepIndex = _step;
             }
         }
 
@@ -567,7 +568,7 @@ namespace Falcone.BuildTool
 
                     if (GUILayout.Button("Overwrite...", GUILayout.MaxWidth(80)))
                     {
-                        GenericMenu menu = this.GetActionsMenu("Overwrite", _build, _build.Steps[count]);
+                        GenericMenu menu = this.GetActionsMenu("Overwrite", _build, count);
                         menu.ShowAsContext();
                     }
 
@@ -1073,7 +1074,7 @@ namespace Falcone.BuildTool
 
                 if (GUILayout.Button("Overwrite...", GUILayout.MaxWidth(80)))
                 {
-                    GenericMenu menu = this.GetActionsMenu("Overwrite", _build, _settings.tempSettings.Steps[this.newCurrStep]);
+                    GenericMenu menu = this.GetActionsMenu("Overwrite", _build, this.newCurrStep);
                     menu.ShowAsContext();
                 }
 
@@ -1725,7 +1726,7 @@ namespace Falcone.BuildTool
             return menu;
         }
 
-        public GenericMenu GetActionsMenu(string _folder, BuildEditorSettings _build, BuildEditorSettings.Step _step)
+        public GenericMenu GetActionsMenu(string _folder, BuildEditorSettings _build, int _step)
         {
             var classes = UIUtility.GetEnumerableOfType<TemplateBuildAction>();
 
