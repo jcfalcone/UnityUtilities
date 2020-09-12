@@ -837,6 +837,8 @@ namespace Falcone.BuildTool
                 ZipBuild(buildPath + "/" + filePath, parentFolder+".zip", "");
             }
 
+            SetStep("Building Step: " + _step.Name + " - Post Actions to execute " + _step.postBuildActions.Count);
+
             //Execute Post Actions
             for (int count = 0; count < _step.postBuildActions.Count; count++)
             {
