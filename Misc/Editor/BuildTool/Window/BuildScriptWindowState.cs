@@ -99,6 +99,8 @@ namespace Falcone.BuildTool
 
         List<Dictionary<string, ReorderableList>> StepsLists;
 
+        BuildEditorSettings prevEditBuild;
+
         public void Init()
         {
 
@@ -384,6 +386,11 @@ namespace Falcone.BuildTool
             {
                 _editor.nextState = States.Welcome;
                 return;
+            }
+
+           if(this.prevEditBuild != _build)
+            {
+                this.StepsLists.Clear();
             }
 
             using (var check = new EditorGUI.ChangeCheckScope())
@@ -736,6 +743,8 @@ namespace Falcone.BuildTool
                 {
                     _build.UpdateStepTags();
                 }
+
+                this.prevEditBuild = _build;
             }
         }
 
