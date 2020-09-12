@@ -1599,6 +1599,7 @@ namespace Falcone.BuildTool
             _list.onRemoveCallback = (ReorderableList list) =>
             {
                 this.DeleteAction(list.index, _actions);
+                EditorUtility.SetDirty(_build);
             };
 
             _list.onSelectCallback = (ReorderableList list) =>
@@ -1650,10 +1651,12 @@ namespace Falcone.BuildTool
             if (option.Step != null)
             {
                 option.Step.overwriteStep = script as TemplateBuildAction;
+                EditorUtility.SetDirty(option.BuildSetting);
             }
             else
             {
                 option.List.Add(script as TemplateBuildAction);
+                EditorUtility.SetDirty(option.BuildSetting);
             }
         }
 
@@ -1686,11 +1689,13 @@ namespace Falcone.BuildTool
             _list.onAddCallback = (ReorderableList list) =>
             {
                 _scene.Add(null);
+                EditorUtility.SetDirty(_build);
             };
 
             _list.onRemoveCallback = (ReorderableList list) =>
             {
                 _scene.RemoveAt(list.index);
+                EditorUtility.SetDirty(_build);
             };
         }
         #endregion
