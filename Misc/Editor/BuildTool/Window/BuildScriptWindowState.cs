@@ -1646,6 +1646,7 @@ namespace Falcone.BuildTool
                     AssetDatabase.SaveAssets();
                     //EditorUtility.FocusProjectWindow();
                     Selection.activeObject = script;
+                    EditorUtility.SetDirty(script);
 
                     fileCreated = true;
                 }
