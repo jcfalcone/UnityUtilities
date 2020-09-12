@@ -1636,18 +1636,22 @@ namespace Falcone.BuildTool
 
             int count = 1;
 
-            ScriptableObject script = null;
+            TemplateBuildAction action = null;
 
             do
             {
                 if (!File.Exists(currfilePath))
                 {
-                    script = ScriptableObject.CreateInstance(option.Script.GetType());
-                    AssetDatabase.CreateAsset(script, currfilePath);
+                    action = MonoBehaviour.Instantiate(option.Script);
+                    AssetDatabase.CreateAsset(action, currfilePath);
                     AssetDatabase.SaveAssets();
+                    EditorUtility.SetDirty(action);
+
+                    action = AssetDatabase.LoadAssetAtPath<TemplateBuildAction>(currfilePath);
+
+
                     //EditorUtility.FocusProjectWindow();
-                    Selection.activeObject = script;
-                    EditorUtility.SetDirty(script);
+                    Selection.activeObject = action;
 
                     fileCreated = true;
                 }
@@ -1661,12 +1665,12 @@ namespace Falcone.BuildTool
 
             if (option.Step != null)
             {
-                option.Step.overwriteStep = script as TemplateBuildAction;
+                option.Step.overwriteStep = action;
                 EditorUtility.SetDirty(option.BuildSetting);
             }
             else
             {
-                option.List.Add(script as TemplateBuildAction);
+                option.List.Add(action);
                 EditorUtility.SetDirty(option.BuildSetting);
             }
         }
