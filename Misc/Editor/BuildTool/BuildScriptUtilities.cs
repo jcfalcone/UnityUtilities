@@ -206,8 +206,9 @@ namespace Falcone.BuildTool
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[count]);
 
-                UnityEngine.Object[] objects = AssetDatabase.LoadAllAssetRepresentationsAtPath(path);
-                BuildEditorSettings settings = objects[0] as BuildEditorSettings;
+                BuildEditorSettings settings = AssetDatabase.LoadAssetAtPath(path, typeof(BuildEditorSettings)) as BuildEditorSettings;
+
+                Log("Using Settings: " + settings);
 
                 if (settings != null && settings.type != BuildEditorSettings.Type.Editor
                                     && settings.type != BuildEditorSettings.Type.None)
