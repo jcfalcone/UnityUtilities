@@ -206,7 +206,7 @@ namespace Falcone.BuildTool
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[count]);
 
-                BuildEditorSettings settings = AssetDatabase.LoadAssetAtPath<BuildEditorSettings>(path);
+                BuildEditorSettings settings = AssetDatabase.LoadMainAssetAtPath(path) as BuildEditorSettings;
 
                 if (settings != null && settings.type != BuildEditorSettings.Type.Editor
                                     && settings.type != BuildEditorSettings.Type.None)

@@ -596,7 +596,7 @@ namespace Falcone.BuildTool
             {
                 for (int count = 0; count < _settings.Steps.Count; count++)
                 {
-                    BuildStep(_settings, _settings.Steps[count], _extra);
+                    BuildStep(_settings, count, _extra);
                 }
             }
             else
@@ -607,7 +607,7 @@ namespace Falcone.BuildTool
                     return;
                 }
 
-                BuildStep(_settings, _settings.Steps[_index], _extra);
+                BuildStep(_settings, _index, _extra);
             }
 
             //Execute Post Actions
@@ -643,19 +643,19 @@ namespace Falcone.BuildTool
             if (onComplete != null) onComplete();
         }
 
-        static void BuildStep(BuildEditorSettings _settings, BuildEditorSettings.Step _step, ExtraSettings _extra = null)
+        static void BuildStep(BuildEditorSettings _settings, int _step, ExtraSettings _extra = null)
         {
-            _step.wasBuild = false;
+            _settings.Steps[_step].wasBuild = false;
 
-            SetDictionaryToStep(_step);
+            SetDictionaryToStep(_settings.Steps[_step]);
 
             string buildPath = ParseString(_settings.Path);
             string filePath = ParseString(_settings.File);
 
             //Replace step if necessary
-            if (_step.overwritePath)
+            if (_settings.Steps[_step].overwritePath)
             {
-                buildPath = ParseString(_step.path);
+                buildPath = ParseString(_settings.Steps[_step].path);
             }
 
             if(string.IsNullOrEmpty(buildPath))
@@ -665,9 +665,9 @@ namespace Falcone.BuildTool
             }
 
             //Check if a custom build step is set
-            if (_step.overwriteStep != null)
+            if (_settings.Steps[_step].overwriteStep != null)
             {
-                _step.overwriteStep.Exec(_settings, _step, _extra, buildPath, filePath);
+                _settings.Steps[_step].overwriteStep.Exec(_settings, _settings.Steps[_step], _extra, buildPath, filePath);
                 return;
             }
 
@@ -676,16 +676,16 @@ namespace Falcone.BuildTool
             {
                 if(_extra.targets.Count > 0)
                 {
-                    if(!_extra.targets.Contains(BuildScriptUtilities.GetShortTargetName(_step.Target)))
+                    if(!_extra.targets.Contains(BuildScriptUtilities.GetShortTargetName(_settings.Steps[_step].Target)))
                     {
-                        BuildScriptUtilities.Log("Skipping "+ _step.Name+ " : Missing target "+ String.Join(", ", _extra.targets.ToArray()));
+                        BuildScriptUtilities.Log("Skipping "+ _settings.Steps[_step].Name+ " : Missing target "+ String.Join(", ", _extra.targets.ToArray()));
                         return;
                     }
                 }
 
                 if (_extra.tags.Count > 0)
                 {
-                    string[] labels = _step.Labels.Split(' ');
+                    string[] labels = _settings.Steps[_step].Labels.Split(' ');
                     bool found = false;
 
                     for (int count = 0; count < labels.Length; count++)
@@ -699,13 +699,13 @@ namespace Falcone.BuildTool
 
                     if(!found)
                     {
-                        BuildScriptUtilities.Log("Skipping " + _step.Name + " : Missing label " + String.Join(", ", _extra.tags.ToArray()));
+                        BuildScriptUtilities.Log("Skipping " + _settings.Steps[_step].Name + " : Missing label " + String.Join(", ", _extra.tags.ToArray()));
                         return;
                     }
                 }
             }
 
-            if ((_step.Option & BuildOptions.AcceptExternalModificationsToPlayer) != BuildOptions.AcceptExternalModificationsToPlayer &&
+            if ((_settings.Steps[_step].Option & BuildOptions.AcceptExternalModificationsToPlayer) != BuildOptions.AcceptExternalModificationsToPlayer &&
                 (File.Exists(buildPath + "/" + filePath) || Directory.Exists(buildPath + "/" + filePath)))
             {
                 BuildScriptUtilities.LogError("Another Build found at " + buildPath + "/" + filePath);
@@ -715,9 +715,9 @@ namespace Falcone.BuildTool
             //Check if platform is different
             if (_extra != null && _extra.mainBuild)
             {
-                if (!_step.mainBuild)
+                if (!_settings.Steps[_step].mainBuild)
                 {
-                    BuildScriptUtilities.Log("Skipping " + _step.Name + " : Not a Main Build");
+                    BuildScriptUtilities.Log("Skipping " + _settings.Steps[_step].Name + " : Not a Main Build");
                     return;
                 }
             }
@@ -726,76 +726,76 @@ namespace Falcone.BuildTool
             //Check if platform is different
             if (_extra != null && !_extra.noAlerts)
             {
-                if(_step.Target != EditorUserBuildSettings.activeBuildTarget)
+                if(_settings.Steps[_step].Target != EditorUserBuildSettings.activeBuildTarget)
                 {
                     if (EditorUtility.DisplayDialog("Switch Targets?", "Do you want to switch platforms? It can take several minutes", "Cancel", "Switch"))
                     {
-                        BuildScriptUtilities.Log("Stopping Step "+ _step.Name);
+                        BuildScriptUtilities.Log("Stopping Step "+ _settings.Steps[_step].Name);
                         return;
                     }
                 }
             }
 
-            if(!IsPlatformSupported(_step.Target))
+            if(!IsPlatformSupported(_settings.Steps[_step].Target))
             {
-                BuildScriptUtilities.Log("Platform "+ _step.Target + " not supported, please download the Unity Module");
+                BuildScriptUtilities.Log("Platform "+ _settings.Steps[_step].Target + " not supported, please download the Unity Module");
                 return;
             }
 
             //Switching platforms
-            SetStep("Building Step: " + _step.Name + " - Switching Platform to " + _step.Target);
+            SetStep("Building Step: " + _settings.Steps[_step].Name + " - Switching Platform to " + _settings.Steps[_step].Target);
 
 
-            bool switchResult = EditorUserBuildSettings.SwitchActiveBuildTarget(BuildScriptUtilities.GetTargetGroup(_step.Target), _step.Target);
+            bool switchResult = EditorUserBuildSettings.SwitchActiveBuildTarget(BuildScriptUtilities.GetTargetGroup(_settings.Steps[_step].Target), _settings.Steps[_step].Target);
 
             if (!switchResult)
             {
-                BuildScriptUtilities.Log("Unable to change Build Target to: " + _step.Target.ToString());
+                BuildScriptUtilities.Log("Unable to change Build Target to: " + _settings.Steps[_step].Target.ToString());
                 return;
             }
 
             //Get Scenes from overwrite or the editor
             string[] scenes;
 
-            SetStep("Building Step: " + _step.Name +" - Getting Scenes");
+            SetStep("Building Step: " + _settings.Steps[_step].Name +" - Getting Scenes");
 
-            if (_step.overwriteScenes)
+            if (_settings.Steps[_step].overwriteScenes)
             {
-                scenes = BuildScriptUtilities.GetSceneList(_step);
+                scenes = BuildScriptUtilities.GetSceneList(_settings.Steps[_step]);
             }
             else
             {
                 scenes = BuildScriptUtilities.GetSceneLevels();
             }
 
-            SetStep("Building Step: " + _step.Name + " - Creating Directory");
+            SetStep("Building Step: " + _settings.Steps[_step].Name + " - Creating Directory");
             Directory.CreateDirectory(buildPath);
 
             //Execute Pre Actions
-            for (int count = 0; count < _step.preBuildActions.Count; count++)
+            for (int count = 0; count < _settings.Steps[_step].preBuildActions.Count; count++)
             {
-                if (_step.preBuildActions[count] == null)
+                if (_settings.Steps[_step].preBuildActions[count] == null)
                 {
                     continue;
                 }
 
-                SetStep("Building Step: " + _step.Name + " - Executing pre action "+ _step.preBuildActions[count].name);
+                SetStep("Building Step: " + _settings.Steps[_step].Name + " - Executing pre action "+ _settings.Steps[_step].preBuildActions[count].name);
 
-                if (!_step.preBuildActions[count].Exec(_settings, _step, _extra, buildPath, filePath) || !string.IsNullOrEmpty(_step.preBuildActions[count].GetError()))
+                if (!_settings.Steps[_step].preBuildActions[count].Exec(_settings, _settings.Steps[_step], _extra, buildPath, filePath) || !string.IsNullOrEmpty(_settings.Steps[_step].preBuildActions[count].GetError()))
                 {
-                    if (!string.IsNullOrEmpty(_step.postBuildActions[count].GetError()))
+                    if (!string.IsNullOrEmpty(_settings.Steps[_step].postBuildActions[count].GetError()))
                     {
-                        BuildScriptUtilities.LogError("ERROR: Pre Step " + _step.postBuildActions[count].GetName() +
-                                                      " returned a error - " + _step.postBuildActions[count].GetError());
+                        BuildScriptUtilities.LogError("ERROR: Pre Step " + _settings.Steps[_step].postBuildActions[count].GetName() +
+                                                      " returned a error - " + _settings.Steps[_step].postBuildActions[count].GetError());
                     }
                 }
             }
 
 
-            SetStep("Building Step: " + _step.Name + " - Building Project");
+            SetStep("Building Step: " + _settings.Steps[_step].Name + " - Building Project");
             //Create the Build and Zip
 
-            BuildOptions options = _step.Option;
+            BuildOptions options = _settings.Steps[_step].Option;
 
             if (_extra != null && _extra.forceDev)
             {
@@ -803,12 +803,12 @@ namespace Falcone.BuildTool
                 options |= BuildOptions.Development;
             }
 
-            UnityEditor.Build.Reporting.BuildReport report = BuildPipeline.BuildPlayer(scenes, buildPath + "/" + filePath, _step.Target, options);
+            UnityEditor.Build.Reporting.BuildReport report = BuildPipeline.BuildPlayer(scenes, buildPath + "/" + filePath, _settings.Steps[_step].Target, options);
             UnityEditor.Build.Reporting.BuildSummary summary = report.summary;
 
             if(summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
             {
-                BuildScriptUtilities.LogError("Building Step: Build Failed - Target: "+ _step.Name + " Time:" + summary.totalTime + " Total Errors: " + summary.totalErrors);
+                BuildScriptUtilities.LogError("Building Step: Build Failed - Target: "+ _settings.Steps[_step].Name + " Time:" + summary.totalTime + " Total Errors: " + summary.totalErrors);
 
                 foreach(var step in report.steps)
                 {
@@ -825,39 +825,39 @@ namespace Falcone.BuildTool
             }
             else
             {
-                _step.wasBuild = true;
+                _settings.Steps[_step].wasBuild = true;
                 BuildScriptUtilities.LogError("Build Completed with Success!");
             }
 
-            if (_step.zipBuild)
+            if (_settings.Steps[_step].zipBuild)
             {
-                SetStep("Building Step: " + _step.Name + " - Zipping Project");
+                SetStep("Building Step: " + _settings.Steps[_step].Name + " - Zipping Project");
 
                 string parentFolder = System.IO.Directory.GetParent(buildPath + "/" + filePath).ToString();
                 ZipBuild(buildPath + "/" + filePath, parentFolder+".zip", "");
             }
 
-            SetStep("Building Step: " + _step.Name + " - Post Actions to execute " + _step.postBuildActions.Count);
+            SetStep("Building Step: " + _settings.Steps[_step].Name + " - Post Actions to execute " + _settings.Steps[_step].postBuildActions.Count);
 
             //Execute Post Actions
-            for (int count = 0; count < _step.postBuildActions.Count; count++)
+            for (int count = 0; count < _settings.Steps[_step].postBuildActions.Count; count++)
             {
 
-                SetStep("Building Step PT3: " + _step.Name + " - Post Actions to execute " + _step.postBuildActions[count]);
+                SetStep("Building Step PT3: " + _settings.Steps[_step].Name + " - Post Actions to execute " + _settings.Steps[_step].postBuildActions[count]);
 
-                if (_step.postBuildActions[count] == null)
+                if (_settings.Steps[_step].postBuildActions[count] == null)
                 {
                     continue;
                 }
 
-                SetStep("Building Step: " + _step.Name + " - Executing post action " + _step.postBuildActions[count].GetName());
+                SetStep("Building Step: " + _settings.Steps[_step].Name + " - Executing post action " + _settings.Steps[_step].postBuildActions[count].GetName());
 
-                if (!_step.postBuildActions[count].Exec(_settings, _step, _extra, buildPath, filePath) || !string.IsNullOrEmpty(_step.postBuildActions[count].GetError()))
+                if (!_settings.Steps[_step].postBuildActions[count].Exec(_settings, _settings.Steps[_step], _extra, buildPath, filePath) || !string.IsNullOrEmpty(_settings.Steps[_step].postBuildActions[count].GetError()))
                 {
-                    if (!string.IsNullOrEmpty(_step.postBuildActions[count].GetError()))
+                    if (!string.IsNullOrEmpty(_settings.Steps[_step].postBuildActions[count].GetError()))
                     {
-                        BuildScriptUtilities.LogError("ERROR: Post Step "+ _step.postBuildActions[count].GetName()+
-                                                      " returned a error - "+ _step.postBuildActions[count].GetError());
+                        BuildScriptUtilities.LogError("ERROR: Post Step "+ _settings.Steps[_step].postBuildActions[count].GetName()+
+                                                      " returned a error - "+ _settings.Steps[_step].postBuildActions[count].GetError());
                     }
                 }
             }
