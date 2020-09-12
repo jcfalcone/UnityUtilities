@@ -198,6 +198,8 @@ namespace Falcone.BuildTool
             string[] guids = AssetDatabase.FindAssets("t:BuildEditorSettings");
             BuildEditorSettings setting = null;
 
+            
+
             if (guids.Length == 0)
             {
                 return null;
@@ -207,7 +209,7 @@ namespace Falcone.BuildTool
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[count]);
 
-                BuildEditorSettings settings = AssetDatabase.LoadAssetAtPath(path, typeof(BuildEditorSettings)) as BuildEditorSettings;
+                BuildEditorSettings settings = Resources.Load< BuildEditorSettings>(path);
 
                 Log("Using Settings: " + settings);
 
