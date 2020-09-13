@@ -845,7 +845,7 @@ namespace Falcone.BuildTool
             for (int count = 0; count < _settings.Steps[_step].postBuildActions.Count; count++)
             {
 
-                SetStep("Building Step PT3: " + _settings.Steps[_step].Name + " - Post Actions to execute " + _settings.Steps[_step].postBuildActions[count]);
+                SetStep("Building Step PT3: " + _settings.Steps[_step].Name + " - Post Actions to execute " + _settings.Steps[_step].postBuildActions[count] + " - " + _settings.Steps[_step].postBuildActionsPath[count]);
 
                 if (_settings.Steps[_step].postBuildActions[count] == null)
                 {
