@@ -33,14 +33,16 @@ namespace Falcone.BuildTool
             public TemplateBuildAction Script;
             public BuildEditorSettings.Step Step => (this.StepIndex >= 0) ? BuildSetting.Steps[this.StepIndex] : null;
             public List<TemplateBuildAction> List;
+            public List<string> ListPath;
             public int StepIndex = -1;
 
-            public MenuOption(string _Folder, BuildEditorSettings _build, TemplateBuildAction _Script, List<TemplateBuildAction> _list)
+            public MenuOption(string _Folder, BuildEditorSettings _build, TemplateBuildAction _Script, List<TemplateBuildAction> _list, List<string> _listPath)
             {
                 Folder = _Folder;
                 BuildSetting = _build;
                 Script = _Script;
                 List = _list;
+                ListPath = _listPath;
             }
 
             public MenuOption(string _Folder, BuildEditorSettings _build, TemplateBuildAction _Script, int _step)
@@ -636,7 +638,7 @@ namespace Falcone.BuildTool
                         if (!this.StepsLists[count].ContainsKey("PRE_BUILD"))
                         {
                             //tempList = this.StepsLists[count]["SCENE"];
-                            this.SetupActionList("Pre Step Build", "PreBuild/Step/", _build, _build.Steps[count].preBuildActions, ref tempList);
+                            this.SetupActionList("Pre Step Build", "PreBuild/Step/", _build, _build.Steps[count].preBuildActions, _build.Steps[count].preBuildActionsPath, ref tempList);
 
                             this.StepsLists[count]["PRE_BUILD"] = tempList;
                         }
@@ -644,7 +646,7 @@ namespace Falcone.BuildTool
                         if (!this.StepsLists[count].ContainsKey("POST_BUILD"))
                         {
                             //tempList = this.StepsLists[count]["SCENE"];
-                            this.SetupActionList("Post Step Build", "PostBuild/Step/", _build, _build.Steps[count].postBuildActions, ref tempList);
+                            this.SetupActionList("Post Step Build", "PostBuild/Step/", _build, _build.Steps[count].postBuildActions, _build.Steps[count].postBuildActionsPath, ref tempList);
 
                             this.StepsLists[count]["POST_BUILD"] = tempList;
                         }
@@ -753,12 +755,12 @@ namespace Falcone.BuildTool
         {
             if (this.actionsPreBuild == null)
             {
-                this.SetupActionList("Pre Build Actions", "PreBuild", _build, _build.preBuildActions, ref this.actionsPreBuild);
+                this.SetupActionList("Pre Build Actions", "PreBuild", _build, _build.preBuildActions, _build.preBuildActionsPath, ref this.actionsPreBuild);
             }
 
             if (this.actionsPostBuild == null)
             {
-                this.SetupActionList("Post Build Actions", "PostBuild", _build, _build.postBuildActions, ref this.actionsPostBuild);
+                this.SetupActionList("Post Build Actions", "PostBuild", _build, _build.postBuildActions, _build.postBuildActionsPath, ref this.actionsPostBuild);
             }
         }
         #endregion
@@ -1078,6 +1080,12 @@ namespace Falcone.BuildTool
                     menu.ShowAsContext();
                 }
 
+                if(_settings.tempSettings.Steps[this.newCurrStep].overwriteStep == null && 
+                   !string.IsNullOrEmpty(_settings.tempSettings.Steps[this.newCurrStep].overwriteStepPath))
+                {
+                    _settings.tempSettings.Steps[this.newCurrStep].overwriteStepPath = string.Empty;
+                }
+
                 GUILayout.EndHorizontal();
 
                 if (_settings.tempSettings.Steps[this.newCurrStep].overwriteStep == null)
@@ -1142,12 +1150,22 @@ namespace Falcone.BuildTool
 
                     if (this.WZactionsStepPreBuild == null)
                     {
-                        this.SetupActionList("Pre Step Build", "PreBuild/Step/", _settings.tempSettings, _settings.tempSettings.Steps[this.newCurrStep].preBuildActions, ref this.WZactionsStepPreBuild);
+                        this.SetupActionList("Pre Step Build", 
+                                             "PreBuild/Step/", 
+                                             _settings.tempSettings, 
+                                             _settings.tempSettings.Steps[this.newCurrStep].preBuildActions,
+                                             _settings.tempSettings.Steps[this.newCurrStep].preBuildActionsPath,
+                                             ref this.WZactionsStepPreBuild);
                     }
 
                     if (this.WZactionsStepPostBuild == null)
                     {
-                        this.SetupActionList("Post Step Build", "PostBuild/Step/", _settings.tempSettings, _settings.tempSettings.Steps[this.newCurrStep].postBuildActions, ref this.WZactionsStepPostBuild);
+                        this.SetupActionList("Post Step Build", 
+                                             "PostBuild/Step/", 
+                                             _settings.tempSettings, 
+                                             _settings.tempSettings.Steps[this.newCurrStep].postBuildActions,
+                                             _settings.tempSettings.Steps[this.newCurrStep].postBuildActionsPath,
+                                             ref this.WZactionsStepPostBuild);
                     }
 
                     this.WZactionsStepPreBuild.DoLayoutList();
@@ -1575,18 +1593,18 @@ namespace Falcone.BuildTool
         {
             if (_preBuild == null)
             {
-                this.SetupActionList(_preTitle, "PreBuild", _build, _build.preBuildActions, ref _preBuild);
+                this.SetupActionList(_preTitle, "PreBuild", _build, _build.preBuildActions, _build.preBuildActionsPath, ref _preBuild);
             }
 
             if (_postBuild == null)
             {
-                this.SetupActionList(_postTitle, "PostBuild", _build, _build.postBuildActions, ref _postBuild);
+                this.SetupActionList(_postTitle, "PostBuild", _build, _build.postBuildActions, _build.postBuildActionsPath, ref _postBuild);
             }
         }
         #endregion
 
         #region List
-        public void SetupActionList(string _title, string _folder, BuildEditorSettings _build, List<TemplateBuildAction> _actions, ref ReorderableList _list)
+        public void SetupActionList(string _title, string _folder, BuildEditorSettings _build, List<TemplateBuildAction> _actions, List<string> _actionsPath, ref ReorderableList _list)
         {
             _list = new ReorderableList(_actions, typeof(TemplateBuildAction), true, true, true, true);
 
@@ -1602,13 +1620,13 @@ namespace Falcone.BuildTool
 
             _list.onAddCallback = (ReorderableList list) =>
             {
-                GenericMenu menu = this.GetActionsMenu(_folder, _build, _actions);
+                GenericMenu menu = this.GetActionsMenu(_folder, _build, _actions, _actionsPath);
                 menu.ShowAsContext();
             };
 
             _list.onRemoveCallback = (ReorderableList list) =>
             {
-                this.DeleteAction(list.index, _actions);
+                this.DeleteAction(list.index, _actions, _actionsPath);
                 EditorUtility.SetDirty(_build);
             };
 
@@ -1652,7 +1670,6 @@ namespace Falcone.BuildTool
 
                     action = AssetDatabase.LoadAssetAtPath<TemplateBuildAction>(currfilePath);
 
-
                     //EditorUtility.FocusProjectWindow();
                     Selection.activeObject = action;
 
@@ -1669,18 +1686,21 @@ namespace Falcone.BuildTool
             if (option.Step != null)
             {
                 option.Step.overwriteStep = action;
+                option.Step.overwriteStepPath = currfilePath;
                 EditorUtility.SetDirty(option.BuildSetting);
             }
             else
             {
                 option.List.Add(action);
+                option.ListPath.Add(currfilePath);
+
                 EditorUtility.SetDirty(option.BuildSetting);
             }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
 
-        public void DeleteAction(int _Index, List<TemplateBuildAction> _actions)
+        public void DeleteAction(int _Index, List<TemplateBuildAction> _actions, List<string> _actionsPath)
         {
             if(_actions[_Index] != null && !AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(_actions[_Index])))
             {
@@ -1689,6 +1709,7 @@ namespace Falcone.BuildTool
             }
 
             _actions.RemoveAt(_Index);
+            _actionsPath.RemoveAt(_Index);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
@@ -1722,7 +1743,7 @@ namespace Falcone.BuildTool
         #endregion
 
         #region Misc
-        public GenericMenu GetActionsMenu(string _folder, BuildEditorSettings _build, List<TemplateBuildAction> _targetList)
+        public GenericMenu GetActionsMenu(string _folder, BuildEditorSettings _build, List<TemplateBuildAction> _targetList, List<string> _targetListPath)
         {
             var classes = UIUtility.GetEnumerableOfType<TemplateBuildAction>();
 
@@ -1730,7 +1751,7 @@ namespace Falcone.BuildTool
 
             foreach (var temp in classes)
             {
-                menu.AddItem(new GUIContent(temp.GetName()), true, this.OnAddAction, new MenuOption(_folder, _build, temp, _targetList));
+                menu.AddItem(new GUIContent(temp.GetName()), true, this.OnAddAction, new MenuOption(_folder, _build, temp, _targetList, _targetListPath));
             }
 
             return menu;

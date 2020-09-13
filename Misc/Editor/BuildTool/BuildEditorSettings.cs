@@ -34,6 +34,7 @@ namespace Falcone.BuildTool
 
             [Space]
             public TemplateBuildAction overwriteStep;
+            public string overwriteStepPath;
 
             [Space]
             [Header("Build")]
@@ -58,6 +59,9 @@ namespace Falcone.BuildTool
             [Header("Actions")]
             public List<TemplateBuildAction> preBuildActions;
             public List<TemplateBuildAction> postBuildActions;
+
+            public List<string> preBuildActionsPath = new List<string>();
+            public List<string> postBuildActionsPath = new List<string>();
 
             public Step()
             {
@@ -134,6 +138,10 @@ namespace Falcone.BuildTool
         [Header("Actions")]
         public List<TemplateBuildAction> preBuildActions = new List<TemplateBuildAction>();
         public List<TemplateBuildAction> postBuildActions = new List<TemplateBuildAction>();
+
+        
+        public List<string> preBuildActionsPath = new List<string>();
+        public List<string> postBuildActionsPath = new List<string>();
 
         [Space]
         [Header("Build")]

@@ -218,6 +218,7 @@ namespace Falcone.BuildTool
 
         #region CLI
         //[RuntimeInitializeOnLoadMethod]
+        [MenuItem("Build/Build Cli", false, 15)]
         static void BuildCLI()
         {
             BuildScriptUtilities.terminal = false;

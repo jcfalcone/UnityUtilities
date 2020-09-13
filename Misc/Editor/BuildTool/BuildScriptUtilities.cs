@@ -229,6 +229,62 @@ namespace Falcone.BuildTool
                 }
             }
 
+            //Reload all the Actions because unity bugs some times and don't load the actions
+            if(setting != null)
+            {
+                if(setting.preBuildActions.Count > 0)
+                {
+                    for (int count = 0; count < setting.preBuildActions.Count; count++)
+                    {
+                        if(setting.preBuildActions[count] == null && setting.preBuildActionsPath.Count < count)
+                        {
+                            setting.preBuildActions[count] = AssetDatabase.LoadAssetAtPath(setting.preBuildActionsPath[count], typeof(TemplateBuildAction)) as TemplateBuildAction;
+                        }
+                    }
+                }
+
+                if (setting.postBuildActions.Count > 0)
+                {
+                    for (int count = 0; count < setting.postBuildActions.Count; count++)
+                    {
+                        if (setting.postBuildActions[count] == null && setting.postBuildActionsPath.Count < count)
+                        {
+                            setting.postBuildActions[count] = AssetDatabase.LoadAssetAtPath(setting.postBuildActionsPath[count], typeof(TemplateBuildAction)) as TemplateBuildAction;
+                        }
+                    }
+                }
+
+                if(setting.Steps.Count > 0)
+                {
+                    for(int count = 0; count < setting.Steps.Count; count++)
+                    {
+                        if (setting.Steps[count].preBuildActions.Count > 0)
+                        {
+                            for (int countS = 0; countS < setting.preBuildActions.Count; countS++)
+                            {
+                                if (setting.Steps[count].preBuildActions[countS] == null && setting.Steps[count].preBuildActionsPath.Count < countS)
+                                {
+                                    setting.Steps[count].preBuildActions[countS] = AssetDatabase.LoadAssetAtPath(setting.Steps[count].preBuildActionsPath[countS], 
+                                                                                                                 typeof(TemplateBuildAction)) as TemplateBuildAction;
+                                }
+                            }
+                        }
+
+                        if (setting.Steps[count].postBuildActions.Count > 0)
+                        {
+                            for (int countS = 0; countS < setting.postBuildActions.Count; countS++)
+                            {
+                                if (setting.Steps[count].postBuildActions[countS] == null && setting.postBuildActionsPath.Count < countS)
+                                {
+                                    setting.Steps[count].postBuildActions[countS] = AssetDatabase.LoadAssetAtPath(setting.Steps[count].postBuildActionsPath[countS], 
+                                                                                                                  typeof(TemplateBuildAction)) as TemplateBuildAction;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             return setting;
         }
 
