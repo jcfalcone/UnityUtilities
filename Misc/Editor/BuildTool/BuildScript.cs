@@ -577,6 +577,12 @@ namespace Falcone.BuildTool
             //Execute Pre Actions
             for (int count = 0; count < _settings.preBuildActions.Count; count++)
             {
+                if (_settings.preBuildActions[count] == null &&
+                    !string.IsNullOrEmpty(_settings.preBuildActionsPath[count]))
+                {
+                    _settings.preBuildActions[count] = AssetDatabase.LoadAssetAtPath(_settings.preBuildActionsPath[count], typeof(TemplateBuildAction)) as TemplateBuildAction;
+                }
+
                 if (_settings.preBuildActions[count] == null)
                 {
                     continue;
@@ -615,7 +621,13 @@ namespace Falcone.BuildTool
             //Execute Post Actions
             for (int count = 0; count < _settings.postBuildActions.Count; count++)
             {
-                if(_settings.postBuildActions[count] == null)
+                if (_settings.postBuildActions[count] == null &&
+                    !string.IsNullOrEmpty(_settings.postBuildActionsPath[count]))
+                {
+                    _settings.postBuildActions[count] = AssetDatabase.LoadAssetAtPath(_settings.postBuildActionsPath[count], typeof(TemplateBuildAction)) as TemplateBuildAction;
+                }
+
+                if (_settings.postBuildActions[count] == null)
                 {
                     continue;
                 }
@@ -666,9 +678,17 @@ namespace Falcone.BuildTool
                 return;
             }
 
+            if (_settings.Steps[_step].overwriteStep == null &&
+                !string.IsNullOrEmpty(_settings.Steps[_step].overwriteStepPath))
+            {
+                _settings.Steps[_step].overwriteStep = AssetDatabase.LoadAssetAtPath(_settings.Steps[_step].overwriteStepPath, typeof(TemplateBuildAction)) as TemplateBuildAction;
+            }
+
+
             //Check if a custom build step is set
             if (_settings.Steps[_step].overwriteStep != null)
             {
+
                 _settings.Steps[_step].overwriteStep.Exec(_settings, _settings.Steps[_step], _extra, buildPath, filePath);
                 return;
             }
@@ -776,6 +796,12 @@ namespace Falcone.BuildTool
             //Execute Pre Actions
             for (int count = 0; count < _settings.Steps[_step].preBuildActions.Count; count++)
             {
+                if (_settings.Steps[_step].preBuildActions[count] == null &&
+                    !string.IsNullOrEmpty(_settings.Steps[_step].preBuildActionsPath[count]))
+                {
+                    _settings.Steps[_step].preBuildActions[count] = AssetDatabase.LoadAssetAtPath(_settings.Steps[_step].preBuildActionsPath[count], typeof(TemplateBuildAction)) as TemplateBuildAction;
+                }
+
                 if (_settings.Steps[_step].preBuildActions[count] == null)
                 {
                     continue;
@@ -844,12 +870,13 @@ namespace Falcone.BuildTool
             //Execute Post Actions
             for (int count = 0; count < _settings.Steps[_step].postBuildActions.Count; count++)
             {
+                if (_settings.Steps[_step].postBuildActions[count] == null && 
+                    !string.IsNullOrEmpty(_settings.Steps[_step].postBuildActionsPath[count]))
+                {
+                    _settings.Steps[_step].postBuildActions[count] = AssetDatabase.LoadAssetAtPath(_settings.Steps[_step].postBuildActionsPath[count], typeof(TemplateBuildAction)) as TemplateBuildAction;
+                }
 
-                SetStep("Building Step PT3: " + _settings.Steps[_step].Name + " - Post Actions to execute " + _settings.Steps[_step].postBuildActions[count] + " - " + 
-                                                                                                              _settings.Steps[_step].postBuildActionsPath[count] + " - " +
-                                                                                                              AssetDatabase.LoadAssetAtPath(_settings.Steps[_step].postBuildActionsPath[count], typeof(TemplateBuildAction)));
-
-                if (_settings.Steps[_step].postBuildActions[count] == null)
+                if (_settings.Steps[_step].postBuildActions[count] == null )
                 {
                     continue;
                 }
