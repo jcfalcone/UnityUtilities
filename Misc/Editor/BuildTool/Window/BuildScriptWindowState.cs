@@ -1676,6 +1676,8 @@ namespace Falcone.BuildTool
                 option.List.Add(action);
                 EditorUtility.SetDirty(option.BuildSetting);
             }
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
         public void DeleteAction(int _Index, List<TemplateBuildAction> _actions)
