@@ -220,7 +220,6 @@ namespace Falcone.BuildTool
                     if (setting == null || (int)settings.type < (int)setting.type)
                     {
                         setting = settings;
-                        AssetDatabase.ImportAsset(path);
                     }
 
                     if (setting.type == BuildEditorSettings.Type.Default)

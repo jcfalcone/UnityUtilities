@@ -1645,6 +1645,9 @@ namespace Falcone.BuildTool
                     action = MonoBehaviour.Instantiate(option.Script);
                     AssetDatabase.CreateAsset(action, currfilePath);
                     AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+
+                    AssetDatabase.ImportAsset(currfilePath);
                     EditorUtility.SetDirty(action);
 
                     action = AssetDatabase.LoadAssetAtPath<TemplateBuildAction>(currfilePath);
@@ -1685,6 +1688,7 @@ namespace Falcone.BuildTool
 
             _actions.RemoveAt(_Index);
             AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
         public void SetupSceneList(string _title, BuildEditorSettings _build, List<Object> _scene, ref ReorderableList _list)
