@@ -194,7 +194,8 @@ namespace Falcone.BuildTool
         #region Settings Files
         public static BuildEditorSettings GetBuildSetting()
         {
-            string[] guidsActions = AssetDatabase.FindAssets("t:TemplateBuildAction");
+            AssetDatabase.Refresh();
+
             string[] guids = AssetDatabase.FindAssets("t:BuildEditorSettings");
             BuildEditorSettings setting = null;
 
@@ -209,7 +210,7 @@ namespace Falcone.BuildTool
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[count]);
 
-                BuildEditorSettings settings = Resources.Load< BuildEditorSettings>(path);
+                BuildEditorSettings settings = AssetDatabase.LoadAssetAtPath(path, typeof(BuildEditorSettings)) as BuildEditorSettings;
 
                 Log("Using Settings: " + settings);
 
@@ -219,6 +220,7 @@ namespace Falcone.BuildTool
                     if (setting == null || (int)settings.type < (int)setting.type)
                     {
                         setting = settings;
+                        AssetDatabase.ImportAsset(path);
                     }
 
                     if (setting.type == BuildEditorSettings.Type.Default)
