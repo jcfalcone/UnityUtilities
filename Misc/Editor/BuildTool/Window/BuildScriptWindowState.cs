@@ -551,6 +551,8 @@ namespace Falcone.BuildTool
 
                 ReorderableList tempList = null;
 
+                Debug.Log(BuildOptions.None+" - "+ BuildOptions.Development);
+
                 for (int count = 0; count < _build.Steps.Count; count++)
                 {
 
@@ -1791,7 +1793,6 @@ namespace Falcone.BuildTool
         {
             GUILayout.Label("Options");
 
-
             string[] names = System.Enum.GetNames(typeof(BuildOptions));
 
             GUILayout.BeginVertical();
@@ -1820,13 +1821,9 @@ namespace Falcone.BuildTool
 
                 if(value)
                 {
-                    _options |= option.Build;
+                    _options = option.Build;
                 }
-                else
-                {
 
-                    _options &= ~option.Build;
-                }
 
                 /*if (GUILayout.Button(option.Name, ((_options & option.Build) != 0) ? _settings.style.ToggleButtonStyleToggled : _settings.style.ToggleButtonStyleNormal))
                 {
@@ -1855,6 +1852,7 @@ namespace Falcone.BuildTool
         {
             List<BuildOption> options = new List<BuildOption>();
 
+            options.Add(new BuildOption { Name = "None", Description = "None", Build = BuildOptions.None });
             options.Add(new BuildOption { Name = "External Changes", Description = "Keep external changes in IOS and Android", Build = BuildOptions.AcceptExternalModificationsToPlayer });
             options.Add(new BuildOption { Name = "Allow Debugging", Description = "Allow remote Script Debug", Build = BuildOptions.AllowDebugging });
             options.Add(new BuildOption { Name = "Auto Run Player", Description = "Run the Build", Build = BuildOptions.AutoRunPlayer });
@@ -1867,7 +1865,7 @@ namespace Falcone.BuildTool
             options.Add(new BuildOption { Name = "Connect Host", Description = "Connect the Build to the Editor", Build = BuildOptions.ConnectToHost });
             options.Add(new BuildOption { Name = "Connect Profiler", Description = "Connect the Build to the Profiler", Build = BuildOptions.ConnectWithProfiler });
             options.Add(new BuildOption { Name = "Detailed Build", Description = "Detailed Build Reports", Build = BuildOptions.DetailedBuildReport });
-            //options.Add(new BuildOption { Name = "", Description = "", Build = BuildOptions.Development });
+            options.Add(new BuildOption { Name = "Development", Description = "Development", Build = BuildOptions.Development });
             options.Add(new BuildOption { Name = "Code Coverage", Description = "Enable Code Coverage", Build = BuildOptions.EnableCodeCoverage });
             options.Add(new BuildOption { Name = "Deep Profiling", Description = "Enable Deep Profiling", Build = BuildOptions.EnableDeepProfilingSupport });
             options.Add(new BuildOption { Name = "Headless", Description = "Headless Mode", Build = BuildOptions.EnableHeadlessMode });

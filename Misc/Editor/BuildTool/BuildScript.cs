@@ -832,6 +832,7 @@ namespace Falcone.BuildTool
             }
 
             UnityEditor.Build.Reporting.BuildReport report = BuildPipeline.BuildPlayer(scenes, buildPath + "/" + filePath, _settings.Steps[_step].Target, options);
+
             UnityEditor.Build.Reporting.BuildSummary summary = report.summary;
 
             if(summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
