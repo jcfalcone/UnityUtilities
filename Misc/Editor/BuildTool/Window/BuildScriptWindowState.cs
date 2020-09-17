@@ -1817,7 +1817,7 @@ namespace Falcone.BuildTool
                     endHorizontal = true;
                 }
 
-                bool value = GUILayout.Toggle(((_options & option.Build) != 0), new GUIContent(option.Name, option.Description), _settings.style.ToggleButtonStyleNormal, GUILayout.MaxWidth(150f));
+                bool value = GUILayout.Toggle(_options == option.Build, new GUIContent(option.Name, option.Description), _settings.style.ToggleButtonStyleNormal, GUILayout.MaxWidth(150f));
 
                 if(value)
                 {
