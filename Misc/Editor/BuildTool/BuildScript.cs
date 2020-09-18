@@ -855,7 +855,7 @@ namespace Falcone.BuildTool
             else
             {
                 _settings.Steps[_step].wasBuild = true;
-                BuildScriptUtilities.LogError("Build Completed with Success!");
+                BuildScriptUtilities.Log("Build Completed with Success!");
             }
 
             if (_settings.Steps[_step].zipBuild)
