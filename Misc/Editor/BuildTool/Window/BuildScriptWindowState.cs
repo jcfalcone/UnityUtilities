@@ -394,6 +394,9 @@ namespace Falcone.BuildTool
            if(this.prevEditBuild != _build && this.StepsLists != null)
             {
                 this.StepsLists.Clear();
+
+                this.actionsPreBuild = null;
+                this.actionsPostBuild = null;
             }
 
             using (var check = new EditorGUI.ChangeCheckScope())
