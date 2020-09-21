@@ -414,7 +414,7 @@ namespace Falcone.BuildTool
 
                 this.scrollPosition = EditorGUILayout.BeginScrollView(this.scrollPosition, false, false, GUIStyle.none, GUI.skin.verticalScrollbar, _settings.style.WelcomeGroup);
 
-                UIUtility.SubTitle("Settinds");
+                UIUtility.SubTitle("Settings");
 
                 GUILayout.BeginHorizontal();
 
