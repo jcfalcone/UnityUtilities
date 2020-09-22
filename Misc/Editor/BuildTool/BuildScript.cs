@@ -308,11 +308,14 @@ namespace Falcone.BuildTool
 
         static void CreateDictionary()
         {
+            AddToDictionary("Product_Name.Path", PlayerSettings.productName.Replace(" ", "_"));
+            AddToDictionary("Company_Name.Path", PlayerSettings.companyName.Replace(" ", "_"));
             AddToDictionary("Product_Name", PlayerSettings.productName);
             AddToDictionary("Company_Name", PlayerSettings.companyName);
             AddToDictionary("Asset_Folder", Application.dataPath+"/");
             AddToDictionary("Root_Folder",  Application.dataPath.Replace("/Assets", "/"));
             AddToDictionary("Build_Folder", Application.dataPath.Replace("/Assets", "/") + "Build/");
+            AddToDictionary("Final_Folder", Application.dataPath.Replace("/Assets", "/") + "Final/");
 
             DateTime saveUtcNow = DateTime.UtcNow;
 
@@ -350,10 +353,13 @@ namespace Falcone.BuildTool
 
             tags["Product_Name"] = "Project/Product Name";
             tags["Company_Name"] = "Project/Company Name";
+            tags["Product_Name.Path"] = "Project/Path Product Name";
+            tags["Company_Name.Path"] = "Project/Path Company Name";
             tags["Sequence"] = "Project/Sequence";
 
             tags["Asset_Folder"] = "Folder/Asset Folder";
             tags["Build_Folder"] = "Folder/Build Folder";
+            tags["Build_Folder"] = "Folder/Final Folder";
             tags["Root_Folder"] = "Folder/Project Folder";
 
             tags["Date"] = "Date/Date";
