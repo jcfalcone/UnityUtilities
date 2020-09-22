@@ -10,6 +10,10 @@ namespace Falcone.BuildTool
         [SerializeField, Tooltip("Path where the files will be copied")]
         string TargetPath;
 
+
+        [SerializeField, Tooltip("Path where the files will be copied")]
+        bool deleteOriginal = false;
+
         string ParsedPath;
 
         public override string GetName()
@@ -126,6 +130,12 @@ namespace Falcone.BuildTool
                     this.lastError = "Error on move file ["+ filePath + "] - " + iox.Message;
                     return false;
                 }
+
+                if(this.deleteOriginal)
+                {
+                    BuildScriptUtilities.Log("Deleting " + filePath);
+                    File.Delete(filePath);
+                }
             }
 
             return true;
@@ -180,6 +190,12 @@ namespace Falcone.BuildTool
                     // Copy the subdirectories.
                     DirectoryCopy(subdir.FullName, temppath, copySubDirs);
                 }
+            }
+
+            if (this.deleteOriginal)
+            {
+                BuildScriptUtilities.Log("Deleting Folder " + sourceDirName);
+                Directory.Delete(sourceDirName);
             }
 
             return true;
