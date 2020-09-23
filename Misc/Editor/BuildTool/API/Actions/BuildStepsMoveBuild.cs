@@ -162,6 +162,8 @@ namespace Falcone.BuildTool
                 Directory.CreateDirectory(destDirName);
             }
 
+            BuildScriptUtilities.Log("PT1 - Deleting Folder " + sourceDirName);
+
 
             // Get the file contents of the directory to copy.
             FileInfo[] files = dir.GetFiles();
@@ -178,6 +180,8 @@ namespace Falcone.BuildTool
                 }
             }
 
+            BuildScriptUtilities.Log("PT2 - Deleting Folder " + sourceDirName);
+
             // If copySubDirs is true, copy the subdirectories.
             if (copySubDirs)
             {
@@ -191,6 +195,8 @@ namespace Falcone.BuildTool
                     DirectoryCopy(subdir.FullName, temppath, copySubDirs);
                 }
             }
+
+            BuildScriptUtilities.Log("PT3 - Deleting Folder " + sourceDirName);
 
             if (this.deleteOriginal)
             {
