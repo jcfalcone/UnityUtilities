@@ -197,7 +197,7 @@ namespace Falcone.BuildTool
             if (this.deleteOriginal && _Root)
             {
                 BuildScriptUtilities.Log("Deleting Folder " + sourceDirName);
-                Directory.Delete(sourceDirName);
+                Directory.Delete(sourceDirName, true);
             }
 
             return true;
