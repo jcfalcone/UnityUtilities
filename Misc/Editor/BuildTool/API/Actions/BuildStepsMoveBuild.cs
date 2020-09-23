@@ -107,6 +107,7 @@ namespace Falcone.BuildTool
                 BuildScriptUtilities.Log("Moving folder [" + buildPath + "] to [" + this.ParsedPath + "]");
                 return DirectoryCopy(buildPath,
                                      this.ParsedPath,
+                                     true,
                                      true);
             }
             else
@@ -143,7 +144,8 @@ namespace Falcone.BuildTool
 
         private bool DirectoryCopy(string sourceDirName, 
                                    string destDirName, 
-                                   bool copySubDirs)
+                                   bool copySubDirs,
+                                   bool _Root = false)
         {
 
             // If the source directory does not exist, throw an exception.
@@ -162,8 +164,6 @@ namespace Falcone.BuildTool
                 Directory.CreateDirectory(destDirName);
             }
 
-            BuildScriptUtilities.Log("PT1 - Deleting Folder " + sourceDirName);
-
 
             // Get the file contents of the directory to copy.
             FileInfo[] files = dir.GetFiles();
@@ -180,8 +180,6 @@ namespace Falcone.BuildTool
                 }
             }
 
-            BuildScriptUtilities.Log("PT2 - Deleting Folder " + sourceDirName);
-
             // If copySubDirs is true, copy the subdirectories.
             if (copySubDirs)
             {
@@ -196,9 +194,7 @@ namespace Falcone.BuildTool
                 }
             }
 
-            BuildScriptUtilities.Log("PT3 - Deleting Folder " + sourceDirName);
-
-            if (this.deleteOriginal)
+            if (this.deleteOriginal && _Root)
             {
                 BuildScriptUtilities.Log("Deleting Folder " + sourceDirName);
                 Directory.Delete(sourceDirName);
