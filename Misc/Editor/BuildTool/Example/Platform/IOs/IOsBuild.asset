@@ -19,69 +19,25 @@ MonoBehaviour:
   Path: '{Build_Folder}/{Short_Target}/Build_{Date.Path.Date}_{Date.Path.Time}_{Sequence}'
   File: '{Product_Name}_{Sequence}{Extension}'
   preBuildActions: []
-  postBuildActions:
-  - {fileID: 11400000, guid: 73b6dc535a134a947ab74c1287728570, type: 2}
+  postBuildActions: []
+  preBuildActionsPath: []
+  postBuildActionsPath: []
   Steps:
-  - Name: Jenkins Android
-    Labels: Jenkins Android
+  - Name: iOS
+    Labels: All iOS
     defaultSettings: 0
     wasBuild: 0
     zipBuild: 1
-    mainBuild: 0
+    mainBuild: 1
     overwriteStep: {fileID: 0}
-    Target: 13
-    Option: -921952125
-    overwritePath: 0
-    path: 
-    overwriteScenes: 0
-    scenes:
-    - {fileID: 102900000, guid: 5bf795eda64a6431fb19ea152d87fac5, type: 3}
-    preBuildActions: []
-    postBuildActions: []
-  - Name: Jenkins IOS
-    Labels: Jenkins iOS
-    defaultSettings: 0
-    wasBuild: 0
-    zipBuild: 1
-    mainBuild: 0
-    overwriteStep: {fileID: 0}
+    overwriteStepPath: 
     Target: 9
-    Option: -922738557
+    Option: 0
     overwritePath: 0
     path: 
     overwriteScenes: 0
     scenes: []
     preBuildActions: []
     postBuildActions: []
-  - Name: Android
-    Labels: All Android
-    defaultSettings: 0
-    wasBuild: 0
-    zipBuild: 0
-    mainBuild: 1
-    overwriteStep: {fileID: 0}
-    Target: 13
-    Option: -33
-    overwritePath: 0
-    path: 
-    overwriteScenes: 0
-    scenes:
-    - {fileID: 102900000, guid: 5bf795eda64a6431fb19ea152d87fac5, type: 3}
-    preBuildActions: []
-    postBuildActions: []
-  - Name: IOS
-    Labels: All iOS
-    defaultSettings: 0
-    wasBuild: 0
-    zipBuild: 0
-    mainBuild: 1
-    overwriteStep: {fileID: 0}
-    Target: 9
-    Option: -33
-    overwritePath: 0
-    path: 
-    overwriteScenes: 0
-    scenes:
-    - {fileID: 102900000, guid: 9fc0d4010bbf28b4594072e72b8655ab, type: 3}
-    preBuildActions: []
-    postBuildActions: []
+    preBuildActionsPath: []
+    postBuildActionsPath: []

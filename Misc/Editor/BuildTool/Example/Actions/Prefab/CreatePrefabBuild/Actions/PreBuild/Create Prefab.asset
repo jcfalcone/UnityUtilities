@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 1
+  m_Script: {fileID: 11500000, guid: 5c27bd6420b1d8345af2a9a61903c4c2, type: 3}
+  m_Name: Create Prefab
+  m_EditorClassIdentifier: 
+  Prefab:
+  - {fileID: 3384103884026060287, guid: 60e1a85f8b440144b8b8ea3634c507b3, type: 3}
+  customScenes: []

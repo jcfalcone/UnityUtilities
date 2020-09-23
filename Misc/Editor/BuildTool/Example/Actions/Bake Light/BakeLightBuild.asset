@@ -18,22 +18,30 @@ MonoBehaviour:
   type: 8
   Path: '{Build_Folder}/{Short_Target}/Build_{Date.Path.Date}_{Date.Path.Time}_{Sequence}'
   File: '{Product_Name}_{Sequence}{Extension}'
-  preBuildActions: []
-  postBuildActions:
-  - {fileID: 11400000, guid: 73b6dc535a134a947ab74c1287728570, type: 2}
+  preBuildActions:
+  - {fileID: 11400000, guid: c356cb48a1bcf3744a47b213b40a9cf9, type: 2}
+  postBuildActions: []
+  preBuildActionsPath:
+  - Assets\UnityUtilities\Misc\Editor\BuildTool\Example\Actions\Bake Light/BakeLightBuild/Actions/PreBuild/Bake
+    Light.asset
+  postBuildActionsPath: []
   Steps:
   - Name: Windows
-    Labels: All Win64
+    Labels: All Win32
     defaultSettings: 0
-    wasBuild: 0
+    wasBuild: 1
     zipBuild: 0
     mainBuild: 1
     overwriteStep: {fileID: 0}
-    Target: 19
-    Option: -922738453
+    overwriteStepPath: 
+    Target: 5
+    Option: 0
     overwritePath: 0
     path: 
-    overwriteScenes: 0
-    scenes: []
+    overwriteScenes: 1
+    scenes:
+    - {fileID: 102900000, guid: 196c28316a4d5134bbc33eb54e9d189b, type: 3}
     preBuildActions: []
     postBuildActions: []
+    preBuildActionsPath: []
+    postBuildActionsPath: []
