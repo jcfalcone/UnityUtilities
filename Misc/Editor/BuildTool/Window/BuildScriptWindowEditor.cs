@@ -39,7 +39,7 @@ namespace Falcone.BuildTool
         float fadeStartTime = 0;
         float fadeTime = 0.5f;
 
-        [MenuItem("Build/Editor")]
+        [MenuItem("Build Steps/Editor")]
         static void ShowWindow()
         {
             ShowWindow(false);

@@ -7,7 +7,7 @@ using System;
 
 namespace Falcone.BuildTool
 {
-    [CreateAssetMenu(menuName = "Tools/Build/Settings")]
+    [CreateAssetMenu(menuName = "Build Steps/Settings")]
     public class BuildEditorSettings : ScriptableObject
     {
         [Flags]

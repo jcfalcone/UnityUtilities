@@ -73,7 +73,7 @@ namespace Falcone.BuildTool
 
         #region Premade Builds
         #region IOS Build
-        [MenuItem("Build/IOs/Development", false, 1)]
+        [MenuItem("Build Steps/IOs/Development", false, 1)]
         static void BuildiOSDev()
         {
             ExtraSettings extra = ExtraSettings.Dev();
@@ -82,7 +82,7 @@ namespace Falcone.BuildTool
             BuildAll(null, extra);
         }
 
-        [MenuItem("Build/IOs/Release", false, 2)]
+        [MenuItem("Build Steps/IOs/Release", false, 2)]
         static void BuildiOSRelease()
         {
             ExtraSettings extra = new ExtraSettings();
@@ -91,7 +91,7 @@ namespace Falcone.BuildTool
             BuildAll(null, extra);
         }
 
-        [MenuItem("Build/IOs/All", false, 14)]
+        [MenuItem("Build Steps/IOs/All", false, 14)]
         static void BuildiOSAll()
         {
             BuildiOSDev();
@@ -100,7 +100,7 @@ namespace Falcone.BuildTool
         #endregion
 
         #region Android Build
-        [MenuItem("Build/Android/Development", false, 1)]
+        [MenuItem("Build Steps/Android/Development", false, 1)]
         static void BuildAndroidDev()
         {
             ExtraSettings extra = ExtraSettings.Dev();
@@ -109,7 +109,7 @@ namespace Falcone.BuildTool
             BuildAll(null, extra);
         }
 
-        [MenuItem("Build/Android/Release", false, 2)]
+        [MenuItem("Build Steps/Android/Release", false, 2)]
         static void BuildAndroidRelease()
         {
             ExtraSettings extra = new ExtraSettings();
@@ -118,7 +118,7 @@ namespace Falcone.BuildTool
             BuildAll(null, extra);
         }
 
-        [MenuItem("Build/Android/All", false, 14)]
+        [MenuItem("Build Steps/Android/All", false, 14)]
         static void BuildAndroidAll()
         {
             BuildAndroidDev();
@@ -127,7 +127,7 @@ namespace Falcone.BuildTool
         #endregion
 
         #region WebGL Build
-        [MenuItem("Build/WebGL/Development", false, 1)]
+        [MenuItem("Build Steps/WebGL/Development", false, 1)]
         static void BuildWebDev()
         {
             ExtraSettings extra = ExtraSettings.Dev();
@@ -136,7 +136,7 @@ namespace Falcone.BuildTool
             BuildAll(null, extra);
         }
 
-        [MenuItem("Build/WebGL/Release", false, 2)]
+        [MenuItem("Build Steps/WebGL/Release", false, 2)]
         static void BuildWebRelease()
         {
             ExtraSettings extra = new ExtraSettings();
@@ -145,7 +145,7 @@ namespace Falcone.BuildTool
             BuildAll(null, extra);
         }
 
-        [MenuItem("Build/WebGL/All", false, 14)]
+        [MenuItem("Build Steps/WebGL/All", false, 14)]
         static void BuildWebAll()
         {
             BuildWebDev();
@@ -154,7 +154,7 @@ namespace Falcone.BuildTool
         #endregion
 
         #region PC Build
-        [MenuItem("Build/PC/Development", false, 1)]
+        [MenuItem("Build Steps/PC/Development", false, 1)]
         static void BuildPCDev()
         {
             ExtraSettings extra = ExtraSettings.Dev();
@@ -167,7 +167,7 @@ namespace Falcone.BuildTool
             BuildAll(null, extra);
         }
 
-        [MenuItem("Build/PC/Release", false, 2)]
+        [MenuItem("Build Steps/PC/Release", false, 2)]
         static void BuildPCRelease()
         {
             ExtraSettings extra = new ExtraSettings();
@@ -180,7 +180,7 @@ namespace Falcone.BuildTool
             BuildAll(null, extra);
         }
 
-        [MenuItem("Build/PC/All", false, 14)]
+        [MenuItem("Build Steps/PC/All", false, 14)]
         static void BuildPCAll()
         {
             BuildPCDev();
@@ -189,7 +189,7 @@ namespace Falcone.BuildTool
         #endregion
 
         #region All
-        [MenuItem("Build/Build All", false, 14)]
+        [MenuItem("Build Steps/Build All", false, 14)]
         static void BuildAll()
         {
             BuildAll();
@@ -218,7 +218,7 @@ namespace Falcone.BuildTool
 
         #region CLI
         //[RuntimeInitializeOnLoadMethod]
-        [MenuItem("Build/Build Cli", false, 15)]
+        //[MenuItem("Build Steps/Build Cli", false, 15)]
         static void BuildCLI()
         {
             BuildScriptUtilities.terminal = false;

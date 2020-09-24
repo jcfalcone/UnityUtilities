@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Falcone.BuildTool
 {
-    [CreateAssetMenu(menuName = "Tools/Build/EditorSettings")]
+    //[CreateAssetMenu(menuName = "Tools/Build/EditorSettings")]
     public class BuildScriptWindowSettings : ScriptableObject
     {
         public Texture icon;
