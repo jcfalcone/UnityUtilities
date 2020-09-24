@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 53a0e486d7e49c14da10269ea7de6315, type: 3}
-  m_Name: AndroidBuild
+  m_Name: MoveBuild
   m_EditorClassIdentifier: 
   controlVersion: 1
   Sequence: 0
@@ -19,19 +19,22 @@ MonoBehaviour:
   Path: '{Build_Folder}/{Short_Target}/Build_{Date.Path.Date}_{Date.Path.Time}_{Sequence}'
   File: '{Product_Name}_{Sequence}{Extension}'
   preBuildActions: []
-  postBuildActions: []
+  postBuildActions:
+  - {fileID: 11400000, guid: 4f638e09886608d44acdab17b401defa, type: 2}
   preBuildActionsPath: []
-  postBuildActionsPath: []
+  postBuildActionsPath:
+  - Assets\UnityUtilities\Misc\Editor\BuildTool\Example\Actions\Move Build/MoveBuild/Actions/PostBuild/Move
+    Build.asset
   Steps:
-  - Name: Jenkins Android
-    Labels: Jenkins Android
+  - Name: Windows
+    Labels: All Win32
     defaultSettings: 0
-    wasBuild: 0
-    zipBuild: 1
+    wasBuild: 1
+    zipBuild: 0
     mainBuild: 1
     overwriteStep: {fileID: 0}
     overwriteStepPath: 
-    Target: 13
+    Target: 5
     Option: 0
     overwritePath: 0
     path: 
