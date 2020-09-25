@@ -19,11 +19,23 @@ namespace Falcone.BuildTool
 
         //System.DateTime timeStamp;
 
+        /// <summary>
+        /// Name that build steps will display in the quick add menu
+        /// </summary>
         public override string GetName()
         {
             return "Create Prefab";
         }
 
+        /// <summary>
+        /// It will create prefabs in the scene
+        /// </summary>
+        /// <param name="_settings">Settings that is in use</param>
+        /// <param name="_step">Current step being executed, null if its a action executed at the begining or end</param>
+        /// <param name="_extra">Extra settings that build steps use to check if it should show alerts, for example</param>
+        /// <param name="_path">Path that is in use</param>
+        /// <param name="_file">Build File name</param>
+        /// <returns>True if success or false if error</returns>
         public override bool Exec(BuildEditorSettings _settings,
                                   BuildEditorSettings.Step _step,
                                   BuildScript.ExtraSettings _extra,

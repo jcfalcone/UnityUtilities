@@ -359,7 +359,7 @@ namespace Falcone.BuildTool
 
             tags["Asset_Folder"] = "Folder/Asset Folder";
             tags["Build_Folder"] = "Folder/Build Folder";
-            tags["Build_Folder"] = "Folder/Final Folder";
+            tags["Final_Folder"] = "Folder/Final Folder";
             tags["Root_Folder"] = "Folder/Project Folder";
 
             tags["Date"] = "Date/Date";
