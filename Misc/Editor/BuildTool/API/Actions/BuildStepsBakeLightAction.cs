@@ -87,8 +87,14 @@ namespace Falcone.BuildTool
                 Lightmapping.Cancel();
             }
 
+            #if UNITY_2019_1_OR_NEWER
             Lightmapping.bakeCompleted += this.SaveScene;
             Lightmapping.bakeCompleted += this.BakeNewScene;
+            #elif UNITY_2018_1_OR_NEWER
+            Lightmapping.completed += this.SaveScene;
+            Lightmapping.completed += this.BakeNewScene;
+            #endif
+
             BakeNewScene();
         }
 
@@ -121,8 +127,14 @@ namespace Falcone.BuildTool
         // When done baking, update the editor text
         private void OnBakeCompleted()
         {
+
+            #if UNITY_2019_1_OR_NEWER
             Lightmapping.bakeCompleted -= this.SaveScene;
             Lightmapping.bakeCompleted -= this.BakeNewScene;
+            #elif UNITY_2018_1_OR_NEWER
+            Lightmapping.completed -= this.SaveScene;
+            Lightmapping.completed -= this.BakeNewScene;
+            #endif
         }
     }
 }

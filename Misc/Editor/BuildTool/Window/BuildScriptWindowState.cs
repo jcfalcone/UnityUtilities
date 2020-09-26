@@ -31,7 +31,13 @@ namespace Falcone.BuildTool
             public string Folder;
             public BuildEditorSettings BuildSetting;
             public TemplateBuildAction Script;
-            public BuildEditorSettings.Step Step => (this.StepIndex >= 0) ? BuildSetting.Steps[this.StepIndex] : null;
+            public BuildEditorSettings.Step Step
+            {
+                get
+                {
+                    return (this.StepIndex >= 0) ? BuildSetting.Steps[this.StepIndex] : null;
+                }
+            }
             public List<TemplateBuildAction> List;
             public List<string> ListPath;
             public int StepIndex = -1;
@@ -141,6 +147,13 @@ namespace Falcone.BuildTool
         {
             Debug.Log("Tick " + _state);
 
+            #if UNITY_2018_1_OR_NEWER
+            #else
+            _settings.style.WelcomeBuildButton = GUI.skin.button;
+            _settings.style.WelcomeButtons = GUI.skin.button;
+            _settings.style.WelcomeGroup = GUI.skin.box;
+            #endif
+
 
             switch (_state)
             {
@@ -174,7 +187,7 @@ namespace Falcone.BuildTool
             }
         }
 
-        #region Welcome
+#region Welcome
         public void InitWelcome(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
         {
 
@@ -322,9 +335,9 @@ namespace Falcone.BuildTool
 
             GUILayout.EndVertical();
         }
-        #endregion
+#endregion
 
-        #region BuildStep
+#region BuildStep
         public void BuildStep(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings)
         {
             GUILayout.BeginVertical();
@@ -373,9 +386,9 @@ namespace Falcone.BuildTool
 
             GUILayout.EndVertical();
         }
-        #endregion
+#endregion
 
-        #region Edit Settings
+#region Edit Settings
         public void InitChangeSettings(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
         {
             this.CreateEditLists(_build);
@@ -768,9 +781,9 @@ namespace Falcone.BuildTool
                 this.SetupActionList("Post Build Actions", "PostBuild", _build, _build.postBuildActions, _build.postBuildActionsPath, ref this.actionsPostBuild);
             }
         }
-        #endregion
+#endregion
 
-        #region WizardPath
+#region WizardPath
         public void InitNewPath(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
         {
             this.newCurrStep = 0;
@@ -820,9 +833,9 @@ namespace Falcone.BuildTool
 
             GUILayout.EndVertical();
         }
-        #endregion
+#endregion
 
-        #region WizardProject
+#region WizardProject
         public void InitNewProject(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
         {
         }
@@ -862,9 +875,9 @@ namespace Falcone.BuildTool
 
             GUILayout.EndVertical();
         }
-        #endregion
+#endregion
 
-        #region WizardProjectActions
+#region WizardProjectActions
         public void InitNewActions(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
         {
         }
@@ -898,9 +911,9 @@ namespace Falcone.BuildTool
 
             GUILayout.EndVertical();
         }
-        #endregion
+#endregion
 
-        #region WizardPlatform
+#region WizardPlatform
         public void InitNewPlatform(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
         {
 
@@ -956,7 +969,12 @@ namespace Falcone.BuildTool
                 if (GUILayout.Button(name, GUILayout.MaxWidth(150f)))
                 {
                     BuildEditorSettings.Step step = new BuildEditorSettings.Step();
+
+#if UNITY_2018_1_OR_NEWER
                     System.Enum.TryParse<BuildTarget>(value.ToString(), out step.Target);
+#elif UNITY_2017_1_OR_NEWER
+                    step.Target = (BuildTarget)System.Enum.Parse(typeof(BuildTarget), value.ToString());
+#endif
 
                     step.Name = step.Target.ToString();
 
@@ -1036,9 +1054,9 @@ namespace Falcone.BuildTool
 
             GUILayout.EndVertical();
         }
-        #endregion
+#endregion
 
-        #region WizardNewStep
+#region WizardNewStep
         public void InitNewStep(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
         {
 
@@ -1199,9 +1217,9 @@ namespace Falcone.BuildTool
                 }
             }
         }
-        #endregion
+#endregion
 
-        #region WizardNewEnd
+#region WizardNewEnd
         public void InitNewEnd(BuildEditorSettings _build, BuildScriptWindowEditor _editor)
         {
 
@@ -1319,9 +1337,9 @@ namespace Falcone.BuildTool
                 }
             }
         }
-        #endregion
+#endregion
 
-        #region WizardMisc
+#region WizardMisc
         public bool DrawWizardButtons(BuildEditorSettings _build, BuildScriptWindowEditor _editor, BuildScriptWindowSettings _settings, bool _enableBack = true, bool _enableNext = true)
         {
             GUILayout.BeginHorizontal();
@@ -1441,7 +1459,7 @@ namespace Falcone.BuildTool
 
         public void DrawSmartArea(BuildScriptWindowEditor _editor, string _target, BuildScriptWindowSettings _settings)
         {
-            if(string.IsNullOrWhiteSpace(_target))
+            if(System.String.IsNullOrEmpty(_target))
             {
                 _target = string.Empty;
             }
@@ -1606,9 +1624,9 @@ namespace Falcone.BuildTool
                 this.SetupActionList(_postTitle, "PostBuild", _build, _build.postBuildActions, _build.postBuildActionsPath, ref _postBuild);
             }
         }
-        #endregion
+#endregion
 
-        #region List
+#region List
         public void SetupActionList(string _title, string _folder, BuildEditorSettings _build, List<TemplateBuildAction> _actions, List<string> _actionsPath, ref ReorderableList _list)
         {
             _list = new ReorderableList(_actions, typeof(TemplateBuildAction), true, true, true, true);
@@ -1745,9 +1763,9 @@ namespace Falcone.BuildTool
                 EditorUtility.SetDirty(_build);
             };
         }
-        #endregion
+#endregion
 
-        #region Misc
+#region Misc
         public GenericMenu GetActionsMenu(string _folder, BuildEditorSettings _build, List<TemplateBuildAction> _targetList, List<string> _targetListPath)
         {
             var classes = UIUtility.GetEnumerableOfType<TemplateBuildAction>();
@@ -1778,7 +1796,7 @@ namespace Falcone.BuildTool
 
         public GenericMenu GetTagsMenu(GenericMenu.MenuFunction2 _action)
         {
-            var classes = UIUtility.GetEnumerableOfType<TemplateBuildAction>();
+            //var classes = UIUtility.GetEnumerableOfType<TemplateBuildAction>();
 
             GenericMenu menu = new GenericMenu();
 
@@ -1796,7 +1814,7 @@ namespace Falcone.BuildTool
         {
             GUILayout.Label("Options");
 
-            string[] names = System.Enum.GetNames(typeof(BuildOptions));
+            //string[] names = System.Enum.GetNames(typeof(BuildOptions));
 
             GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
@@ -1867,26 +1885,37 @@ namespace Falcone.BuildTool
             options.Add(new BuildOption { Name = "Material CRC", Description = "Compute Material CRC Hash", Build = BuildOptions.ComputeCRC });
             options.Add(new BuildOption { Name = "Connect Host", Description = "Connect the Build to the Editor", Build = BuildOptions.ConnectToHost });
             options.Add(new BuildOption { Name = "Connect Profiler", Description = "Connect the Build to the Profiler", Build = BuildOptions.ConnectWithProfiler });
+#if UNITY_2020_1_OR_NEWER
             options.Add(new BuildOption { Name = "Detailed Build", Description = "Detailed Build Reports", Build = BuildOptions.DetailedBuildReport });
+#endif
             options.Add(new BuildOption { Name = "Development", Description = "Development", Build = BuildOptions.Development });
+#if UNITY_2019_1_OR_NEWER
             options.Add(new BuildOption { Name = "Code Coverage", Description = "Enable Code Coverage", Build = BuildOptions.EnableCodeCoverage });
             options.Add(new BuildOption { Name = "Deep Profiling", Description = "Enable Deep Profiling", Build = BuildOptions.EnableDeepProfilingSupport });
+#endif
             options.Add(new BuildOption { Name = "Headless", Description = "Headless Mode", Build = BuildOptions.EnableHeadlessMode });
             options.Add(new BuildOption { Name = "Force Assertions", Description = "Force Assertions outside of Dev Build", Build = BuildOptions.ForceEnableAssertions });
             //options.Add(new BuildOption { Name = "", Description = "", Build = BuildOptions.ForceOptimizeScriptCompilation });
+#if UNITY_2018_1_OR_NEWER
             options.Add(new BuildOption { Name = "Test Assemblies", Description = "Include Assemblies for Testing", Build = BuildOptions.IncludeTestAssemblies });
+#endif
             options.Add(new BuildOption { Name = "Inst. Build Folder", Description = "Place the player in the build folder", Build = BuildOptions.InstallInBuildFolder });
             options.Add(new BuildOption { Name = "No U. Identifier", Description = "Force buildGUID to zero", Build = BuildOptions.NoUniqueIdentifier });
+#if UNITY_2019_1_OR_NEWER
             options.Add(new BuildOption { Name = "Patch Package", Description = "Path a Development APP", Build = BuildOptions.PatchPackage });
+#endif
             options.Add(new BuildOption { Name = "Show Built", Description = "Show the Built Folder", Build = BuildOptions.ShowBuiltPlayer });
             options.Add(new BuildOption { Name = "Strict Mode", Description = "Stop build if any error is found", Build = BuildOptions.StrictMode });
             //options.Add(new BuildOption { Name = "", Description = "", Build = BuildOptions.StripDebugSymbols });
             options.Add(new BuildOption { Name = "Symlink Libraries", Description = "Symlink Libraries for XCode Projects ( faster interation time )", Build = BuildOptions.SymlinkLibraries });
             options.Add(new BuildOption { Name = "Uncompressed Bundle", Description = "Uncompressed Asset Bundles", Build = BuildOptions.UncompressedAssetBundle });
+
+#if UNITY_2019_1_OR_NEWER
             options.Add(new BuildOption { Name = "Wait Player", Description = "Wait for Player", Build = BuildOptions.WaitForPlayerConnection });
+#endif
 
             return options;
         }
-        #endregion
+#endregion
     }
 }

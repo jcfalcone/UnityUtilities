@@ -109,10 +109,14 @@ namespace Falcone.BuildTool
                     return "tvOS";
                 case BuildTarget.Switch:
                     return "Switch";
+                #if UNITY_2018_1_OR_NEWER
                 case BuildTarget.Lumin:
                     return "Lumin";
+                #endif
+                #if UNITY_2019_1_OR_NEWER
                 case BuildTarget.Stadia:
                     return "Stadia";
+                #endif
             }
 
             return "Unknow";
@@ -146,10 +150,14 @@ namespace Falcone.BuildTool
                     return BuildTargetGroup.tvOS;
                 case BuildTarget.Switch:
                     return BuildTargetGroup.Switch;
+                #if UNITY_2018_1_OR_NEWER
                 case BuildTarget.Lumin:
                     return BuildTargetGroup.Lumin;
+                #endif
+                #if UNITY_2019_1_OR_NEWER
                 case BuildTarget.Stadia:
                     return BuildTargetGroup.Stadia;
+                #endif
             }
 
             return BuildTargetGroup.Unknown;
@@ -189,9 +197,9 @@ namespace Falcone.BuildTool
 
             return targets;
         }
-        #endregion
+#endregion
 
-        #region Settings Files
+#region Settings Files
         public static BuildEditorSettings GetBuildSetting()
         {
             AssetDatabase.Refresh();
@@ -255,6 +263,6 @@ namespace Falcone.BuildTool
 
             return null;
         }
-        #endregion
+#endregion
     }
 }

@@ -396,6 +396,7 @@ namespace Falcone.BuildTool
         public static void ZipBuild(string _build, string _path, string _file)
         {
             #if _BUILDSTEPS_ZIP_FILE_
+                #if UNITY_2018_1_OR_NEWER
                 if(File.Exists(_path + _file))
                 {
                     BuildScriptUtilities.LogError("Zip found at destine, overwriting...");
@@ -411,8 +412,11 @@ namespace Falcone.BuildTool
 
                 BuildScriptUtilities.Log("Building Step: Zipping path " + pathToZip + " to "+ _path + _file+" - "+ File.GetAttributes(_build).HasFlag(FileAttributes.Directory));
                 System.IO.Compression.ZipFile.CreateFromDirectory(pathToZip, _path + _file);
+                #else
+                    BuildScriptUtilities.Log("This unity version doesn't support zip!");
+                #endif
             #else
-                BuildScriptUtilities.LogError("Zip settings not enabled!");
+            BuildScriptUtilities.LogError("Zip settings not enabled!");
             #endif
         }
 		
@@ -837,6 +841,7 @@ namespace Falcone.BuildTool
                 options |= BuildOptions.Development;
             }
 
+#if UNITY_2018_1_OR_NEWER
             UnityEditor.Build.Reporting.BuildReport report = BuildPipeline.BuildPlayer(scenes, buildPath + "/" + filePath, _settings.Steps[_step].Target, options);
 
             UnityEditor.Build.Reporting.BuildSummary summary = report.summary;
@@ -858,6 +863,16 @@ namespace Falcone.BuildTool
 
                 return;
             }
+            #elif UNITY_2017_1_OR_NEWER
+            string report = BuildPipeline.BuildPlayer(scenes, buildPath + "/" + filePath, _settings.Steps[_step].Target, options);
+
+            if (!string.IsNullOrEmpty(report))
+            {
+                BuildScriptUtilities.LogError("Building Step: Build Failed - Target: " + _settings.Steps[_step].Name + " Error:" + report);
+
+                return;
+            }
+            #endif
             else
             {
                 _settings.Steps[_step].wasBuild = true;
@@ -914,6 +929,6 @@ namespace Falcone.BuildTool
 
             return (bool)isPlatformSupportLoaded.Invoke(null, new object[] { (string)getTargetStringFromBuildTarget.Invoke(null, new object[] { _target }) });
         }
-        #endregion
+#endregion
     }
 }

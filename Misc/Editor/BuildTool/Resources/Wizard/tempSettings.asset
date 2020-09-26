@@ -20,4 +20,6 @@ MonoBehaviour:
   File: 
   preBuildActions: []
   postBuildActions: []
+  preBuildActionsPath: []
+  postBuildActionsPath: []
   Steps: []
